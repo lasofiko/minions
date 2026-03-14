@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание - Relink</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/create.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<header>
+    <div class="nav-container">
+        <div class="nav-logo">
+            <h2>Relink</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="create.html" class="active">Создать</a></li>
+            <li><a href="statistics.html">Статистика</a></li>
+        </ul>
+    </div>
+</header>
+
+<main class="create-container">
+    <div class="page-header">
+        <h1>Выберите действие</h1>
+        <p class="subtitle">Создавайте короткие ссылки или генерируйте QR-коды</p>
+    </div>
+
+    <div class="actions-grid">
+        <!-- Карточка создания ссылки -->
+        <div class="action-card" id="linkCard">
+            <div class="card-icon">
+                <i class="fas fa-link"></i>
+            </div>
+            <h2>Короткая ссылка</h2>
+            <p>Создайте удобную короткую ссылку для любого URL</p>
+
+            <!-- Форма (скрыта по умолчанию) -->
+            <div class="card-form hidden" id="linkForm">
+                <div class="form-group">
+                    <input type="url" id="linkInput" placeholder="https://example.com" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="cancelLinkForm()">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="createLink()">Создать ссылку</button>
+                </div>
+            </div>
+
+            <!-- Кнопка открытия формы -->
+            <button class="card-btn" id="showLinkFormBtn" onclick="showLinkForm()">
+                Создать ссылку
+            </button>
+
+            <!-- Результат (скрыт по умолчанию) -->
+            <div class="result-box hidden" id="linkResult">
+                <div class="result-content">
+                    <div class="result-url">
+                        <span class="short-url">relink.ru/abc123</span>
+                        <button class="copy-btn" onclick="copyToClipboard('relink.ru/abc123')">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка создания QR-кода -->
+        <div class="action-card" id="qrCard">
+            <div class="card-icon">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <h2>QR-код</h2>
+            <p>Сгенерируйте QR-код для любой ссылки</p>
+
+            <!-- Форма (скрыта по умолчанию) -->
+            <div class="card-form hidden" id="qrForm">
+                <div class="form-group">
+                    <input type="url" id="qrInput" placeholder="https://example.com" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="cancelQrForm()">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="generateQRWithShortening()">Создать QR-код</button>
+                </div>
+            </div>
+
+            <!-- Кнопка открытия формы -->
+            <button class="card-btn" id="showQrFormBtn" onclick="showQrForm()">
+                Создать QR-код
+            </button>
+
+            <!-- Результат (скрыт по умолчанию) -->
+            <div class="result-box hidden" id="qrResult">
+                <div class="result-content qr-result">
+                    <div class="qr-preview">
+                        <img src="#" alt="QR-код" id="qrImage">
+                    </div>
+                    <div class="short-url-display">
+                        <div class="result-url">
+                            <span class="short-url" id="qrResultUrl">relink.ru/abc123</span>
+                            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('qrResultUrl').textContent)">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="qr-actions">
+                        <button class="btn btn-outline" onclick="downloadQR()">
+                            <i class="fas fa-download"></i> Скачать
+                        </button>
+                        <button class="btn btn-outline" onclick="copyQR()">
+                            <i class="far fa-copy"></i> Копировать
+                        </button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="resetQrForm()">
+                        Создать новый QR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../js/create.js"></script>
+</body>
+</html>
