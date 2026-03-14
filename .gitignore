@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+.python-version
+
+# ide
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# project specific
+logs/
+*.log
+shell.log
+
+# bdshka
+*.db
+*.sqlite3
+*.sqlite
