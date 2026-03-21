@@ -1,8 +1,11 @@
 __pycache__/
+*.pyc
 *.py[cod]
 *.so
 .Python
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
