@@ -8,7 +8,6 @@ export const ProtectedRoute = ({children}) => {
         return <div className="loading">Загрузка...</div>;
     }
 
-    // редирект на страницу входа
     if (!isAuthenticated) {
         return <Navigate to="/auth" replace/>;
     }

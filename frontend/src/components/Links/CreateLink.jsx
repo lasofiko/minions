@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import apiClient from '../../api/client';
-import QRCode from 'qrcode.react';
 import '../../css/CreateLink.css';
 
 export const CreateLink = () => {
@@ -21,7 +20,7 @@ export const CreateLink = () => {
             try {
                 new URL(originalUrl);
             } catch {
-                throw new Error('Введите корректную ссылку начиная с http:// или https://');
+                throw new Error('Введите корректную ссылку (с http:// или https://)');
             }
 
             const response = await apiClient.post('/links', {
@@ -43,24 +42,21 @@ export const CreateLink = () => {
     };
 
     const copyToClipboard = () => {
-        const shortUrl = getShortUrl();
-        navigator.clipboard.writeText(shortUrl);
+        navigator.clipboard.writeText(getShortUrl());
         alert('Ссылка скопирована!');
     };
 
+    // Генерация QR кода через API
+    const getQRCodeUrl = () => {
+        const url = getShortUrl();
+        return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    };
+
     const downloadQR = () => {
-        const canvas = document.getElementById('qr-code-canvas');
-        if (canvas) {
-            const pngUrl = canvas
-                .toDataURL('image/png')
-                .replace('image/png', 'image/octet-stream');
-            const downloadLink = document.createElement('a');
-            downloadLink.href = pngUrl;
-            downloadLink.download = `qrcode_${result.short_code}.png`;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-        }
+        const link = document.createElement('a');
+        link.download = `qrcode_${result.short_code}.png`;
+        link.href = getQRCodeUrl();
+        link.click();
     };
 
     return (
@@ -113,12 +109,17 @@ export const CreateLink = () => {
 
                         {showQR && (
                             <div className="qr-container">
-                                <QRCode
-                                    id="qr-code-canvas"
-                                    value={getShortUrl()}
-                                    size={200}
-                                    level="H"
-                                    includeMargin={true}
+                                <img
+                                    src={getQRCodeUrl()}
+                                    alt="QR Code"
+                                    style={{
+                                        width: '200px',
+                                        height: '200px',
+                                        border: '1px solid #ddd',
+                                        padding: '10px',
+                                        backgroundColor: 'white',
+                                        borderRadius: '8px'
+                                    }}
                                 />
                                 <button onClick={downloadQR} className="download-qr-btn">
                                     Скачать QR-код

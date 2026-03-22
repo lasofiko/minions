@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Auth } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
 import { ProtectedRoute } from './components/Layout/ProtectedRoute';
-import './App.css';
+import './css/App.css';
 
 function AppRoutes() {
     const { isAuthenticated } = useAuth();
