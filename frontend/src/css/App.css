@@ -19,5 +19,13 @@ body {
     --success-color: #68d391;
     --white: #fff;
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    --box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-size: 18px;
+    color: var(--text-color);
 }
