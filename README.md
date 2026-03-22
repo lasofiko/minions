@@ -60,15 +60,8 @@ Relink решает повседневную задачу: превращает 
 - UV
 
 ## Архитектура проекта
-
-<p align="center">
-    <img src="photo5305572152021030152y.jpg" alt="Архитектура проекта" width="80%">
-</p>
-
+https://disk.yandex.ru/d/QaCp2gmDraCgEw
 ## Структура проекта 
-
+https://disk.yandex.ru/d/QaCp2gmDraCgEw
 ## Схема базы данных
-
-<p align="center">
-    <img src="photo5305572152021030073y.jpg" alt="Схема базы данных" width="80%">
-</p>
+https://disk.yandex.ru/d/QaCp2gmDraCgEw
