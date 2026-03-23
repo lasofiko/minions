@@ -10,8 +10,9 @@ app = FastAPI(title="URL shortener")
 app.include_router(router, prefix="/api/v1")
 
 app.add_middleware(
+
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Адрес фронтенда
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
