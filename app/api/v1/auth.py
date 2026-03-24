@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-
 from app.core.database import get_db
 from app.core.security import (
     verify_password, get_password_hash,
@@ -11,12 +10,14 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from app.schemas.token import Token, TokenRefresh, UserLogin
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(prefix="/auth")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 
 async def get_current_user(
-        token: str = Depends(oauth2_scheme),
+        request: Request,
+        access_token: str | None = Cookie(None),
         db: Session = Depends(get_db)
 ) -> User:
     credentials_exception = HTTPException(
@@ -25,15 +26,17 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if not token:
-        raise credentials_exception
+    payload = decode_token(access_token)
 
-    payload = decode_token(token)
     if payload is None or payload.get("type") != "access":
         raise credentials_exception
 
-    user_id = payload.get("sub")
-    if user_id is None:
+    if not access_token:
+        raise credentials_exception
+
+    try:
+        user_id = int(payload.get("sub"))
+    except (ValueError, TypeError):
         raise credentials_exception
 
     user = db.query(User).filter(User.id == user_id).first()
@@ -43,10 +46,11 @@ async def get_current_user(
     return user
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(
         user_data: UserCreate,
-        db: Session = Depends(get_db)
+        response: Response,
+        db: Session = Depends(get_db),
 ):
 
     existing = db.query(User).filter(
@@ -71,12 +75,40 @@ def register(
     db.commit()
     db.refresh(user)
 
-    return user
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=1800,
+        path="/"
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=604800,
+        path="/"
+    )
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
 @router.post("/login", response_model=Token)
 def login(
         login_data: UserLogin,
+        response: Response,
         db: Session = Depends(get_db)
 ):
 
@@ -91,13 +123,33 @@ def login(
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Пользователь деактивирован")
 
-    access_token = create_access_token(data={"sub": user.id})
-    refresh_token = create_refresh_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=1800,
+        path="/"
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=604800,
+        path="/",
+    )
 
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
     }
 
 
