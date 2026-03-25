@@ -1,4 +1,6 @@
-from sqlalchemy import Integer, String, Boolean, Column, DateTime, ForeignKey, func
+from sqlalchemy import Integer, String, Boolean, Column, DateTime, ForeignKey
+from zoneinfo import ZoneInfo
+from datetime import datetime
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -9,7 +11,7 @@ class Link(Base):
     original_url = Column(String, nullable=False)
     short_code = Column(String, unique=True, index=True, nullable=False)
     qrcode_path = Column(String, nullable=True)
-    created_at = Column(DateTime, server_default=func.now())
+    created_at = Column(DateTime, default=datetime.now(ZoneInfo("Europe/Moscow")))
     clicks_count = Column(Integer, default=0)
     last_clicked_at = Column(DateTime, nullable=True)
 
