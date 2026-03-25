@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie, Request
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import (
@@ -12,26 +12,25 @@ from app.schemas.token import Token, TokenRefresh, UserLogin
 
 router = APIRouter(prefix="/auth")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
-
-
+security = HTTPBearer()
 async def get_current_user(
-        request: Request,
-        access_token: str | None = Cookie(None),
+        auth: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
 ) -> User:
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Не удалось подтвердить учетные данные",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    payload = decode_token(access_token)
+    token = auth.credentials
 
-    if payload is None or payload.get("type") != "access":
+    if not token:
         raise credentials_exception
 
-    if not access_token:
+    payload = decode_token(token)
+    if payload is None or payload.get("type") != "access":
         raise credentials_exception
 
     try:
@@ -78,25 +77,25 @@ def register(
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=1800,
-        path="/"
-    )
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=604800,
-        path="/"
-    )
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=access_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=1800,
+    #     path="/"
+    # )
+    #
+    # response.set_cookie(
+    #     key="refresh_token",
+    #     value=refresh_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=604800,
+    #     path="/"
+    # )
 
     return {
         "access_token": access_token,
@@ -126,25 +125,25 @@ def login(
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=1800,
-        path="/"
-    )
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=604800,
-        path="/",
-    )
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=access_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=1800,
+    #     path="/"
+    # )
+    #
+    # response.set_cookie(
+    #     key="refresh_token",
+    #     value=refresh_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=604800,
+    #     path="/",
+    # )
 
     return {
         "access_token": access_token,
@@ -155,11 +154,15 @@ def login(
 
 @router.post("/refresh", response_model=Token)
 def refresh_token(
-        refresh_data: TokenRefresh,
+        auth: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
 ):
+    token = auth.credentials
 
-    payload = decode_token(refresh_data.refresh_token)
+    if not token:
+        raise HTTPException(status_code=401, detail="Токен отсутствует")
+
+    payload = decode_token(token)
 
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Невалидный refresh token")

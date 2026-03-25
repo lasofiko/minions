@@ -21,3 +21,6 @@ def create_link(db: Session, link_schema: LinkCreate, owner_id: int):
     db.commit()
     db.refresh(db_link)
     return db_link
+
+def get_user_links(db: Session, owner_id: int):
+    return db.query(Link).filter_by(owner_id=owner_id).all()
