@@ -61,6 +61,7 @@ Relink решает повседневную задачу: превращает 
 
 ## Архитектура проекта
 https://disk.yandex.ru/d/QaCp2gmDraCgEw
+![](https://disk.yandex.ru/d/QaCp2gmDraCgEw/архитектура.jpg)
 ## Структура проекта 
 https://disk.yandex.ru/d/QaCp2gmDraCgEw
 ## Схема базы данных
