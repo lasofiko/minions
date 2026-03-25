@@ -23,7 +23,7 @@ export const CreateLink = () => {
                 throw new Error('Введите корректную ссылку (с http:// или https://)');
             }
 
-            const response = await apiClient.post('/links', {
+            const response = await apiClient.post('/links/create', {
                 original_url: originalUrl
             });
 
@@ -52,11 +52,25 @@ export const CreateLink = () => {
         return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
     };
 
-    const downloadQR = () => {
-        const link = document.createElement('a');
-        link.download = `qrcode_${result.short_code}.png`;
-        link.href = getQRCodeUrl();
-        link.click();
+    const downloadQR = async () => {
+        try {
+            const response = await fetch(getQRCodeUrl());
+            const blob = await response.blob();
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `qrcode_${result.short_code}.png`;
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Ошибка при скачивании:', error);
+            alert('Не удалось скачать QR-код');
+        }
     };
 
     return (
