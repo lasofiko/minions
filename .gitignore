@@ -48,3 +48,6 @@ dist-ssr
 *.local
 
 
+
+# React Component Preview
+previewConfig.json
