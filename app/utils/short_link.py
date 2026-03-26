@@ -1,4 +1,5 @@
-import string, secrets
+import string
+import secrets
 
 def generate_random_code(length: int=6) -> str:
     chars = string.ascii_letters + string.digits
