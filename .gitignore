@@ -26,3 +26,13 @@ shell.log
 .coverage
 htmlcov/
 .pytest_cache/
+
+
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+test-frontend.html
