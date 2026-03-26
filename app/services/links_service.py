@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from app.models.links import Link
 from app.schemas.links import LinkCreate
 from app.utils.short_link import generate_random_code
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 def create_link(db: Session, link_schema: LinkCreate, owner_id: int):
     while True:
@@ -24,3 +26,17 @@ def create_link(db: Session, link_schema: LinkCreate, owner_id: int):
 
 def get_user_links(db: Session, owner_id: int):
     return db.query(Link).filter_by(owner_id=owner_id).all()
+
+def get_url_and_update_stats(db: Session, short_code: str):
+    link = db.query(Link).filter_by(short_code=short_code).first()
+
+    if link:
+        link.clicks_count += 1
+        link.last_clicked_at = datetime.now(ZoneInfo("Europe/Moscow"))
+
+        db.commit()
+        db.refresh(link)
+
+        return link.original_url
+
+    return None
