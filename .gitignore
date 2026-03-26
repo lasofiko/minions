@@ -1,50 +1,28 @@
 __pycache__/
-*.pyc
 *.py[cod]
 *.so
 .Python
 .env
-.env.*
-!.env.example
 .venv
 env/
 venv/
 ENV/
 .python-version
 
-# ide
 .vscode/
 .idea/
 *.swp
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 
-# project specific
 logs/
 *.log
 shell.log
-logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-# bdshka
 *.db
 *.sqlite3
 *.sqlite
+/data/
 
-
-
-# React / Node
-node_modules
-dist
-dist-ssr
-*.local
-
-
+.coverage
+htmlcov/
+.pytest_cache/

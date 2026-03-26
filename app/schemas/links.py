@@ -14,6 +14,7 @@ class Link(BaseModel):
     clicks_count: int
     created_at: datetime
     last_clicked_at: Optional[datetime] = None
+    owner_id: int
 
     class Config:
         from_attributes = True
