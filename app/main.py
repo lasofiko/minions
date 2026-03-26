@@ -2,6 +2,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from app.core.database import engine, Base
 from app.api.v1.router import router as api_v1_router
+from app.api.redirect import router as redirect_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -21,3 +22,5 @@ app.add_middleware(
 )
 
 app.include_router(api_v1_router, prefix='/api/v1')
+
+app.include_router(redirect_router)
