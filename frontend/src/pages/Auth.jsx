@@ -44,8 +44,8 @@ export const Auth = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <h1>Relink</h1>
+                <p className="auth-subtitle">Управление ссылками и QR-кодами</p>
 
-                {/* Переключатель между формами */}
                 <div className="auth-tabs">
                     <button
                         className={isLogin ? 'active' : ''}
