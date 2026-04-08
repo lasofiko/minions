@@ -46,6 +46,6 @@ def delete_link(db: Session, short_code: str, owner_id: int):
     if not link:
         return False
 
-    db.delete(Link)
+    db.delete(link)
     db.commit()
     return True
