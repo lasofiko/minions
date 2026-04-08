@@ -43,7 +43,6 @@ export const CreateLink = () => {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(getShortUrl());
-        alert('Ссылка скопирована!');
     };
 
     // Генерация QR кода через API

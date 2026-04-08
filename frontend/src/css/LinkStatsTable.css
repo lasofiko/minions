@@ -1,0 +1,180 @@
+.stats-container {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.stats-container h2 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 1.8rem;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.stats-table th {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.stats-table th:first-child {
+    border-radius: 10px 0 0 0;
+}
+
+.stats-table th:last-child {
+    border-radius: 0 10px 0 0;
+}
+
+.stats-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.stats-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.original-url a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.original-url a:hover {
+    text-decoration: underline;
+}
+
+.short-url {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.short-url span {
+    font-family: monospace;
+    font-size: 13px;
+    color: #333;
+}
+
+.copy-link-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.copy-link-btn:hover {
+    background: var(--border-color);
+}
+
+.qr-cell {
+    text-align: center;
+}
+
+.qr-preview {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 2px;
+    background: white;
+    vertical-align: middle;
+}
+
+.download-qr-btn-small {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.download-qr-btn-small:hover {
+    background: var(--border-color);
+}
+
+.clicks {
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.last-click {
+    color: #666;
+    font-size: 12px;
+}
+
+.actions {
+    text-align: center;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.action-btn:hover {
+    background: var(--border-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    color: #666;
+}
+
+.empty-state p:first-child {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    font-size: 18px;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .stats-container {
+        padding: 15px;
+        margin: 20px;
+    }
+
+    .stats-table th,
+    .stats-table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .short-url span {
+        font-size: 11px;
+    }
+}
