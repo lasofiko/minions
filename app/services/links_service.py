@@ -24,9 +24,6 @@ def create_link(db: Session, link_schema: LinkCreate, owner_id: int):
     db.refresh(db_link)
     return db_link
 
-def get_user_links(db: Session, owner_id: int):
-    return db.query(Link).filter_by(owner_id=owner_id).all()
-
 def get_url_and_update_stats(db: Session, short_code: str):
     link = db.query(Link).filter_by(short_code=short_code).first()
 
@@ -40,3 +37,6 @@ def get_url_and_update_stats(db: Session, short_code: str):
         return link.original_url
 
     return None
+
+def get_user_stats(db: Session, owner_id: int):
+    return db.query(Link).filter_by(owner_id=owner_id).order_by(Link.created_at.desc()).all()

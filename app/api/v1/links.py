@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.links import Link as LinkSchema, LinkCreate
-from app.services.links_service import create_link, get_user_links # импортируем сервисы
+from app.services.links_service import create_link, get_user_stats
 from app.core.database import get_db
 from app.api.v1.auth import get_current_user
 from app.models.user import User
@@ -24,4 +24,4 @@ def get_my_links_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return get_user_links(db, owner_id=current_user.id)
+    return get_user_stats(db, owner_id=current_user.id)
