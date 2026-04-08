@@ -1,3 +1,4 @@
+/* Основной контейнер */
 .create-link-container {
     max-width: 600px;
     margin: 40px auto;
@@ -11,8 +12,10 @@
     margin-bottom: 20px;
     color: var(--text-color);
     font-size: 1.8rem;
+    text-align: center;
 }
 
+/* Форма */
 .create-form {
     margin-bottom: 20px;
 }
@@ -23,26 +26,33 @@
 
 .url-input {
     width: 100%;
-    padding: 12px 15px;
+    padding: 14px 16px;
     font-size: 1rem;
     border: 2px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 12px;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .url-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: var(--shadow);
+    box-shadow: 0 0 0 3px rgba(29, 174, 247, 0.1);
 }
 
+.url-input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* Кнопка отправки */
 .submit-btn {
     width: 100%;
     padding: 14px;
     background: var(--primary-color);
-    color: var(--white);
+    color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
@@ -51,7 +61,7 @@
 
 .submit-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 5px 20px rgba(29, 174, 247, 0.3);
 }
 
 .submit-btn:disabled {
@@ -59,21 +69,36 @@
     cursor: not-allowed;
 }
 
+/* Ошибки */
 .error-message {
     background-color: #fff5f5;
     color: var(--error-color);
-    padding: 10px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 10px;
     margin-bottom: 20px;
-    font-size: 14px;
     text-align: center;
+    font-size: 14px;
+    border: 1px solid var(--error-color);
 }
 
+/* Результат */
 .result-container {
     margin-top: 30px;
-    padding: 20px;
-    background: #f7fafc;
-    border-radius: 12px;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .link-result h3 {
@@ -82,39 +107,52 @@
     font-size: 1.2rem;
 }
 
+/* Блок с короткой ссылкой */
 .short-url-box {
     display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .short-url {
     flex: 1;
-    padding: 10px;
+    padding: 12px 16px;
     background: white;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     word-break: break-all;
     font-family: monospace;
+    font-size: 14px;
     color: var(--primary-color);
     font-weight: 600;
 }
 
 .copy-btn {
-    padding: 8px 16px;
-    background: var(--success-color);
+    padding: 10px 20px;
+    background: #28a745;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .copy-btn:hover {
     transform: translateY(-2px);
-    opacity: 0.9;
+    background: #218838;
+    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
 }
 
+.copy-btn:active {
+    transform: translateY(0);
+}
+
+/* Статистика */
 .stats {
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
@@ -123,57 +161,146 @@
 }
 
 .stats p {
-    margin: 5px 0;
+    margin: 8px 0;
 }
 
+.stats p:first-child {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Секция QR кода */
 .qr-section {
-    margin-top: 20px;
+    margin-top: 25px;
     text-align: center;
+}
+
+/* Группа кнопок QR */
+.qr-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.qr-toggle-btn,
+.download-qr-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .qr-toggle-btn {
-    padding: 8px 20px;
-    background: var(--border-color);
-    color: var(--text-color);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    background: var(--primary-color);
+    color: white;
 }
 
 .qr-toggle-btn:hover {
-    background: #cbd5e0;
     transform: translateY(-2px);
-}
-
-.qr-container {
-    margin-top: 20px;
-    text-align: center;
-}
-
-.qr-container canvas {
-    margin: 15px auto;
-    display: block;
-    border: 1px solid var(--border-color);
-    padding: 10px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
+    background: #1a9be0;
+    box-shadow: 0 3px 10px rgba(29, 174, 247, 0.3);
 }
 
 .download-qr-btn {
-    margin-top: 10px;
-    padding: 8px 20px;
-    background: var(--primary-color);
+    background: #17a2b8;
     color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .download-qr-btn:hover {
     transform: translateY(-2px);
-    opacity: 0.9;
+    background: #138496;
+    box-shadow: 0 3px 10px rgba(23, 162, 184, 0.3);
+}
+
+.qr-toggle-btn:active,
+.download-qr-btn:active {
+    transform: translateY(0);
+}
+
+/* Контейнер с QR кодом */
+.qr-container {
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    display: inline-block;
+    animation: fadeIn 0.3s ease;
+}
+
+.qr-container img {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .create-link-container {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .create-link-container h2 {
+        font-size: 1.5rem;
+    }
+
+    .short-url-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .short-url {
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .copy-btn {
+        text-align: center;
+        justify-content: center;
+    }
+
+    .qr-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .qr-toggle-btn,
+    .download-qr-btn {
+        width: 100%;
+    }
+
+    .stats {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .create-link-container {
+        margin: 15px;
+        padding: 15px;
+    }
+
+    .url-input {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .submit-btn {
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .short-url {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+
+    .copy-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
 }
