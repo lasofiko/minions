@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.links import Link as LinkSchema, LinkCreate
-from app.services.links_service import create_link, get_user_stats
+from app.services.links_service import create_link, get_user_stats, delete_link
 from app.core.database import get_db
 from app.api.v1.auth import get_current_user
 from app.models.user import User
@@ -25,3 +25,10 @@ def get_my_links_endpoint(
     current_user: User = Depends(get_current_user)
 ):
     return get_user_stats(db, owner_id=current_user.id)
+
+@router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
+def delete_link_endpoint(short_code: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    success = delete_link(db, short_code=short_code, owner_id=current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Ссылка не найдена или у вас нет прав на её удаление")
+    return None

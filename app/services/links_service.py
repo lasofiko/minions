@@ -40,3 +40,12 @@ def get_url_and_update_stats(db: Session, short_code: str):
 
 def get_user_stats(db: Session, owner_id: int):
     return db.query(Link).filter_by(owner_id=owner_id).order_by(Link.created_at.desc()).all()
+
+def delete_link(db: Session, short_code: str, owner_id: int):
+    link = db.query(Link).filter_by(short_code=short_code, owner_id=owner_id).first()
+    if not link:
+        return False
+
+    db.delete(Link)
+    db.commit()
+    return True
