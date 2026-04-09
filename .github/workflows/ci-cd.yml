@@ -85,32 +85,24 @@ jobs:
         run: |
           docker build -t backend-test .
           docker run -d --name backend-test -p 8000:8000 backend-test
-          echo "Waiting for backend to start..."
           sleep 10
-          
           docker ps | grep backend-test
-          
-          if curl -f http://localhost:8000/docs || \
-             curl -f http://localhost:8000/redoc || \
-             curl -f http://localhost:8000/openapi.json; then
+          if curl -f http://localhost:8000/docs; then
             echo "Backend is responding"
           else
             echo "Backend is not responding"
             docker logs backend-test
             exit 1
           fi
-          
           docker stop backend-test
           docker rm backend-test
 
       - name: Test frontend Docker build
         run: |
           docker build -t frontend-test ./frontend
-          docker run -d --name frontend-test -p 80:5173 frontend-test
+          docker run -d --name frontend-test -p 5173:5173 frontend-test
           sleep 5
-          
           docker ps | grep frontend-test
-          
           if curl -f http://localhost:5173/; then
             echo "Frontend is responding"
           else
@@ -118,7 +110,6 @@ jobs:
             docker logs frontend-test
             exit 1
           fi
-          
           docker stop frontend-test
           docker rm frontend-test
 
