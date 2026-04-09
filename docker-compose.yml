@@ -1,18 +1,20 @@
 services:
-  api:
+  backend:
     build: .
-    container_name: minions-api
-    restart: unless-stopped
+    container_name: relink-backend
     ports:
       - "8000:8000"
     volumes:
-
       - ./app:/app/app
-      - ./data:/app/data
-    environment:
-      - ENVIRONMENT=development
-      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
-    env_file:
-      - .env
 
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  frontend:
+    build: ./frontend
+    container_name: relink-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+       - VITE_API_URL=http://localhost:8000/api/v1
+    stdin_open: true
+    tty: true

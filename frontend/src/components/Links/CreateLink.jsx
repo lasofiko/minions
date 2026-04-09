@@ -43,7 +43,6 @@ export const CreateLink = () => {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(getShortUrl());
-        alert('Ссылка скопирована!');
     };
 
     // Генерация QR кода через API
@@ -66,7 +65,6 @@ export const CreateLink = () => {
 
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-
         } catch (error) {
             console.error('Ошибка при скачивании:', error);
             alert('Не удалось скачать QR-код');
@@ -114,12 +112,17 @@ export const CreateLink = () => {
                     </div>
 
                     <div className="qr-section">
-                        <button
-                            onClick={() => setShowQR(!showQR)}
-                            className="qr-toggle-btn"
-                        >
-                            {showQR ? 'Скрыть QR-код' : 'Показать QR-код'}
-                        </button>
+                        <div className="qr-buttons">
+                            <button
+                                onClick={() => setShowQR(!showQR)}
+                                className="qr-toggle-btn"
+                            >
+                                {showQR ? 'Скрыть QR-код' : 'Показать QR-код'}
+                            </button>
+                            <button onClick={downloadQR} className="download-qr-btn">
+                                Скачать QR-код
+                            </button>
+                        </div>
 
                         {showQR && (
                             <div className="qr-container">
@@ -135,9 +138,6 @@ export const CreateLink = () => {
                                         borderRadius: '8px'
                                     }}
                                 />
-                                <button onClick={downloadQR} className="download-qr-btn">
-                                    Скачать QR-код
-                                </button>
                             </div>
                         )}
                     </div>
