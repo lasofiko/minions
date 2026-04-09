@@ -28,24 +28,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install ruff pytest
           pip install -r requirements.txt
 
       - name: Lint with ruff
-        working-directory: ./backend
         run: |
           ruff check ./app || echo "No linting issues"
 
       - name: Run tests
-        working-directory: ./backend
         run: |
           pytest tests/ -v --tb=short || echo "No tests found"
 
@@ -86,7 +83,7 @@ jobs:
 
       - name: Test backend Docker build
         run: |
-          docker build -t backend-test ./backend
+          docker build -t backend-test .
           docker run -d --name backend-test -p 8000:8000 backend-test
           echo "Waiting for backend to start..."
           sleep 10
@@ -109,12 +106,12 @@ jobs:
       - name: Test frontend Docker build
         run: |
           docker build -t frontend-test ./frontend
-          docker run -d --name frontend-test -p 80:80 frontend-test
+          docker run -d --name frontend-test -p 80:5173 frontend-test
           sleep 5
           
           docker ps | grep frontend-test
           
-          if curl -f http://localhost/; then
+          if curl -f http://localhost:5173/; then
             echo "Frontend is responding"
           else
             echo "Frontend is not responding"
@@ -160,7 +157,7 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: .
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
