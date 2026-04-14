@@ -6,7 +6,7 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app/app
-
+      - ./sql_app.db:/app/sql_app.db
   frontend:
     build: ./frontend
     container_name: relink-frontend

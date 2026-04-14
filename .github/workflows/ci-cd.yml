@@ -154,6 +154,7 @@ jobs:
           labels: ${{ steps.meta-backend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: ./Dockerfile
 
       - name: Extract frontend metadata
         id: meta-frontend
@@ -174,6 +175,7 @@ jobs:
           labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: ./frontend/Dockerfile
 
   # deploy:
   #   runs-on: ubuntu-latest
