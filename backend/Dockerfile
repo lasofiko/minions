@@ -11,7 +11,7 @@ COPY pyproject.toml ./
 RUN pip install --no-cache-dir uv && \
     uv pip install --system -r pyproject.toml
 
-COPY ./app ./app
+COPY backend/app ./app
 
 RUN mkdir -p /app/data
 
