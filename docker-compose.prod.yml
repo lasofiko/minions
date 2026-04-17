@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+    networks:
+      - minions-network
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    container_name: acme-companion
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - acme:/etc/acme.sh
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+    environment:
+      - DEFAULT_EMAIL=mai.kopylovaa@gmail.com
+    depends_on:
+      - nginx-proxy
+    networks:
+      - minions-network
+
+  backend:
+    build: ./backend
+    container_name: minions-backend
+    expose:
+      - "8000"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - VIRTUAL_HOST=api.linkshortener.ru
+      - VIRTUAL_PORT=8000
+      - LETSENCRYPT_HOST=api.linkshortener.ru
+    networks:
+      - minions-network
+
+  frontend:
+    build: ./frontend
+    container_name: minions-frontend
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=linkshortener.ru,www.linkshortener.ru
+      - LETSENCRYPT_HOST=linkshortener.ru
+    depends_on:
+      - backend
+    networks:
+      - minions-network
+
+volumes:
+  certs:
+  acme:
+  vhost:
+  html:
+
+networks:
+  minions-network:
+    driver: bridge

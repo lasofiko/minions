@@ -7,7 +7,7 @@ __pycache__/
 env/
 venv/
 ENV/
-.python-version
+backend/.python-version
 
 .vscode/
 .idea/

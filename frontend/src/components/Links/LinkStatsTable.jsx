@@ -81,8 +81,7 @@ export const LinkStatsTable = () => {
     };
 
     const getShortUrl = (shortCode) => {
-        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
-        return `${baseUrl}/${shortCode}`;
+        return `${window.location.origin}/${shortCode}`;
     };
 
     if (loading) {

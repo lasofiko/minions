@@ -55,13 +55,13 @@ export const AuthProvider = ({children}) => {
         // токены в cookies
         Cookies.set('access_token', response.data.access_token, {
             expires: ACCESS_TOKEN_EXPIRE_DAYS,
-            secure: false,
+            secure: import.meta.env.PROD,
             sameSite: 'lax',
         });
 
         Cookies.set('refresh_token', response.data.refresh_token, {
             expires: REFRESH_TOKEN_EXPIRE_DAYS,
-            secure: false,
+            secure: import.meta.env.PROD,
             sameSite: 'lax',
         });
 

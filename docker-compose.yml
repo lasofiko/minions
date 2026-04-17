@@ -1,18 +1,26 @@
 services:
-  api:
-    build: .
-    container_name: minions-api
-    restart: unless-stopped
+  backend:
+    build: ./backend
+    container_name: minions-backend
     ports:
       - "8000:8000"
+    expose:
+      - "8000"
     volumes:
+      - ./backend/data:/app/data
+    networks:
+      - minions-network
 
-      - ./app:/app/app
-      - ./data:/app/data
-    environment:
-      - ENVIRONMENT=development
-      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
-    env_file:
-      - .env
+  frontend:
+    build: ./frontend
+    container_name: minions-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - minions-network
 
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+networks:
+  minions-network:
+    driver: bridge
