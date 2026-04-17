@@ -77,25 +77,25 @@ def register(
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=1800,
-        path="/"
-    )
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=604800,
-        path="/"
-    )
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=access_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=1800,
+    #     path="/"
+    # )
+    #
+    # response.set_cookie(
+    #     key="refresh_token",
+    #     value=refresh_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=604800,
+    #     path="/"
+    # )
 
     return {
         "access_token": access_token,
@@ -125,25 +125,25 @@ def login(
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=1800,
-        path="/"
-    )
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        max_age=604800,
-        path="/",
-    )
+    # response.set_cookie(
+    #     key="access_token",
+    #     value=access_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=1800,
+    #     path="/"
+    # )
+    #
+    # response.set_cookie(
+    #     key="refresh_token",
+    #     value=refresh_token,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     max_age=604800,
+    #     path="/",
+    # )
 
     return {
         "access_token": access_token,

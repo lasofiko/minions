@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../css/Auth.css';
@@ -12,14 +12,8 @@ export const Auth = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login, register, isAuthenticated } = useAuth();
+    const { login, register } = useAuth();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/dashboard');
-        }
-    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,8 +32,10 @@ export const Auth = () => {
                 }
                 await register(username, email, password);
             }
+            navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.detail || err.message || 'Ошибка авторизации');
+            setError(err.message);
+        } finally {
             setLoading(false);
         }
     };
