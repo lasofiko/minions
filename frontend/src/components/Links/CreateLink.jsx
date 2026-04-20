@@ -38,7 +38,7 @@ export const CreateLink = () => {
 
     const getShortUrl = () => {
         if (!result) return '';
-        return `/${result.short_code}`;
+        return `${window.location.origin}/${result.short_code}`;
     };
 
     const copyToClipboard = () => {
