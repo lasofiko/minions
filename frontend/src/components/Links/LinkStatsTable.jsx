@@ -81,8 +81,7 @@ export const LinkStatsTable = () => {
     };
 
     const getShortUrl = (shortCode) => {
-        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
-        return `${baseUrl}/${shortCode}`;
+        return `${window.location.origin}/${shortCode}`;
     };
 
     if (loading) {
@@ -101,7 +100,7 @@ export const LinkStatsTable = () => {
     if (links.length === 0) {
         return (
             <div className="empty-state">
-                <p>📭 У вас пока нет ссылок</p>
+                <p>У вас пока нет ссылок</p>
                 <p>Создайте первую ссылку на странице "Создать"</p>
             </div>
         );

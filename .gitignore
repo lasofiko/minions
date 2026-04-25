@@ -21,6 +21,8 @@ htmlcov/
 .env
 .env.local
 .env.*.local
+ENV/
+backend/.python-version
 
 .vscode/
 .idea/

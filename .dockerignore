@@ -12,3 +12,8 @@ __pycache__
 data/
 logs/
 .pytest_cache
+.venv
+.env.example
+node_modules
+*.log
+.DS_Store
