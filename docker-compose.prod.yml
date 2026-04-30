@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: minions-backend
+    expose:
+      - "8000"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/links.db
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=production
+    networks:
+      - minions-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: minions-frontend
+    expose:
+      - "80"
+    networks:
+      - minions-network
+    restart: unless-stopped
+
+  router:
+    image: nginx:alpine
+    container_name: minions-router
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./router/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - minions-network
+    restart: unless-stopped
+
+networks:
+  minions-network:
+    driver: bridge

@@ -1,0 +1,38 @@
+services:
+  backend:
+    build: ./backend
+    container_name: minions-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+    environment:
+      - ENVIRONMENT=development
+    networks:
+      - minions-network
+
+  frontend:
+    build: ./frontend
+    container_name: minions-frontend
+    expose:
+      - "80"
+    networks:
+      - minions-network
+
+  router:
+    image: nginx:alpine
+    container_name: minions-router
+    ports:
+      - "80:80"
+    volumes:
+      - ./router/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - minions-network
+
+networks:
+  minions-network:
+    driver: bridge

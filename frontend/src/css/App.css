@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #C2DDE8;
+    --bg-secondary: #C2DDE8;
+    --bg-card: #ffffff;
+    --text-primary: #2a2d30;
+    --text-secondary: #5a6c7e;
+    --text-light: #ffffff;
+    --primary: #1daef7;
+    --primary-dark: #1a9be0;
+    --primary-light: #7da3b8;
+    --border: #e2e8f0;
+    --error: #fc8181;
+    --success: #68d391;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    --header-bg: #1daef7;
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;
+    --logo-color: #1daef7;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #091426;
+    --bg-secondary: #091426;
+    --bg-card: #192231;
+    --text-primary: #ffffff;
+    --text-secondary: #8cb4c9;
+    --text-light: #ffffff;
+    --primary: #5F91AA;
+    --primary-dark: #4a748a;
+    --primary-light: #7da3b8;
+    --border: #2E495C;
+    --error: #fc8181;
+    --success: #68d391;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    --header-bg: #20374B;
+    --input-bg: #2E495C;
+    --input-border: #20374B;
+    --logo-color: #5F91AA;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    color: var(--text-light);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-size: 18px;
+    color: var(--text-primary);
+}
