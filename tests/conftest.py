@@ -5,7 +5,11 @@ from sqlalchemy.orm import sessionmaker
 
 from app.main import app
 from app.core.database import Base, get_db
-from app.core.security import create_access_token, get_password_hash
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    get_password_hash,
+)
 from app.models.user import User
 from app.models.links import Link
 
@@ -18,17 +22,6 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 
 Base.metadata.create_all(bind=engine)
-
-
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture
@@ -56,11 +49,11 @@ def client(db_session):
             pass
 
     app.dependency_overrides[get_db] = _get_test_db
-
-    with TestClient(app) as test_client:
-        yield test_client
-
-    app.dependency_overrides.clear()
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture
@@ -85,6 +78,12 @@ def test_user_token(test_user):
 @pytest.fixture
 def auth_headers(test_user_token):
     return {"Authorization": f"Bearer {test_user_token}"}
+
+
+@pytest.fixture
+def refresh_headers(test_user):
+    token = create_refresh_token(data={"sub": str(test_user.id)})
+    return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture

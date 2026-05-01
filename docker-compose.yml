@@ -9,6 +9,7 @@ services:
       - ./backend/data:/app/data
     environment:
       - ENVIRONMENT=development
+      - DATABASE_URL=sqlite:///./data/dev.db
     networks:
       - minions-network
 

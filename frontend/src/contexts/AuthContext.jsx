@@ -1,4 +1,4 @@
-import React, {createContext, useState, useContext, useEffect} from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import apiClient from '../api/client';
 import Cookies from 'js-cookie';
 
@@ -13,10 +13,13 @@ export const useAuth = () => {
 };
 
 // настройки
-const ACCESS_TOKEN_EXPIRE_DAYS = Number(import.meta.env.VITE_ACCESS_TOKEN_EXPIRE_MINUTES) / (24 * 60);
-const REFRESH_TOKEN_EXPIRE_DAYS = Number(import.meta.env.VITE_REFRESH_TOKEN_EXPIRE_DAYS);
+const ACCESS_TOKEN_EXPIRE_DAYS =
+    Number(import.meta.env.VITE_ACCESS_TOKEN_EXPIRE_MINUTES) / (24 * 60);
+const REFRESH_TOKEN_EXPIRE_DAYS = Number(
+    import.meta.env.VITE_REFRESH_TOKEN_EXPIRE_DAYS
+);
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -98,5 +101,7 @@ export const AuthProvider = ({children}) => {
         isAuthenticated: !!user,
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    );
 };
