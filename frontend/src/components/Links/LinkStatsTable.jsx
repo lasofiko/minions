@@ -25,7 +25,7 @@ export const LinkStatsTable = () => {
         }
     };
 
-    const copyToClipboard = (text, type) => {
+    const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
     };
 
@@ -138,7 +138,7 @@ export const LinkStatsTable = () => {
                                             {truncateUrl(link.original_url)}
                                         </a>
                                         <button
-                                            onClick={() => copyToClipboard(link.original_url, 'Длинная ссылка')}
+                                            onClick={() => copyToClipboard(link.original_url)}
                                             className="text-btn copy-original-btn"
                                         >
                                             Копировать
@@ -151,7 +151,7 @@ export const LinkStatsTable = () => {
                         {shortUrl}
                       </span>
                                         <button
-                                            onClick={() => copyToClipboard(shortUrl, 'Короткая ссылка')}
+                                            onClick={() => copyToClipboard(shortUrl)}
                                             className="text-btn copy-short-btn"
                                         >
                                             Копировать
