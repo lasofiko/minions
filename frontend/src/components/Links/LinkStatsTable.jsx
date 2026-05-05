@@ -6,6 +6,11 @@ export const LinkStatsTable = () => {
     const [links, setLinks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [filterText, setFilterText] = useState('');
+
+    // Добавлены состояния для сортировки
+    const [sortField, setSortField] = useState('created_at');
+    const [sortOrder, setSortOrder] = useState('desc');
 
     useEffect(() => {
         fetchLinks();
@@ -70,7 +75,6 @@ export const LinkStatsTable = () => {
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
-            // секунды убраны
         });
     };
 
@@ -106,9 +110,67 @@ export const LinkStatsTable = () => {
         );
     }
 
+    // Фильтрация
+    let processedLinks = links.filter(link => {
+        const searchLower = filterText.toLowerCase();
+        return (
+            (link.original_url && link.original_url.toLowerCase().includes(searchLower)) ||
+            (link.short_code && link.short_code.toLowerCase().includes(searchLower))
+        );
+    });
+
+    // Сортировка
+    processedLinks.sort((a, b) => {
+        let valA, valB;
+
+        if (sortField === 'created_at') {
+            valA = a.created_at ? new Date(a.created_at).getTime() : a.id;
+            valB = b.created_at ? new Date(b.created_at).getTime() : b.id;
+        } else if (sortField === 'last_clicked_at') {
+            valA = a.last_clicked_at ? new Date(a.last_clicked_at).getTime() : 0;
+            valB = b.last_clicked_at ? new Date(b.last_clicked_at).getTime() : 0;
+        } else if (sortField === 'clicks_count') {
+            valA = a.clicks_count || 0;
+            valB = b.clicks_count || 0;
+        }
+
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+
     return (
         <div className="stats-container">
             <h2>Статистика ссылок</h2>
+
+            {/* Панель с фильтром и сортировкой */}
+            <div className="controls-container" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                <input
+                    type="text"
+                    placeholder="Поиск по ссылкам..."
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                    className="filter-input"
+                    style={{ flex: 1, padding: '10px', boxSizing: 'border-box' }}
+                />
+                <select
+                    value={`${sortField}-${sortOrder}`}
+                    onChange={(e) => {
+                        const [field, order] = e.target.value.split('-');
+                        setSortField(field);
+                        setSortOrder(order);
+                    }}
+                    className="sort-select"
+                    style={{ padding: '10px', boxSizing: 'border-box' }}
+                >
+                    <option value="created_at-desc">По дате создания (сначала новые)</option>
+                    <option value="created_at-asc">По дате создания (сначала старые)</option>
+                    <option value="clicks_count-desc">По переходам (по убыванию)</option>
+                    <option value="clicks_count-asc">По переходам (по возрастанию)</option>
+                    <option value="last_clicked_at-desc">По последнему переходу (сначала недавние)</option>
+                    <option value="last_clicked_at-asc">По последнему переходу (сначала старые)</option>
+                </select>
+            </div>
 
             <div className="table-wrapper">
                 <table className="stats-table">
@@ -122,7 +184,7 @@ export const LinkStatsTable = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {links.map((link) => {
+                    {processedLinks.map((link) => {
                         const shortUrl = getShortUrl(link.short_code);
                         return (
                             <tr key={link.id}>
@@ -147,9 +209,9 @@ export const LinkStatsTable = () => {
                                 </td>
                                 <td className="short-url">
                                     <div className="short-url-wrapper">
-                      <span className="short-url-text" title={shortUrl}>
-                        {shortUrl}
-                      </span>
+                                      <span className="short-url-text" title={shortUrl}>
+                                        {shortUrl}
+                                      </span>
                                         <button
                                             onClick={() => copyToClipboard(shortUrl)}
                                             className="text-btn copy-short-btn"
@@ -183,6 +245,13 @@ export const LinkStatsTable = () => {
                             </tr>
                         );
                     })}
+                    {processedLinks.length === 0 && (
+                        <tr>
+                            <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                                По вашему запросу ничего не найдено
+                            </td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
             </div>
