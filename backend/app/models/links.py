@@ -2,7 +2,7 @@ from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
 from zoneinfo import ZoneInfo
 from datetime import datetime
 from sqlalchemy.orm import relationship
-from backend.app.core.database import Base
+from app.core.database import Base
 
 class Link(Base):
     __tablename__ = "links"
