@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from app.core.database import get_db
-from app.core.security import (
+from backend.app.core.database import get_db
+from backend.app.core.security import (
     verify_password, get_password_hash,
     create_access_token, create_refresh_token, decode_token
 )
-from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
-from app.schemas.token import Token, UserLogin
+from backend.app.models.user import User
+from backend.app.schemas.user import UserCreate, UserResponse
+from backend.app.schemas.token import Token, UserLogin
 
 router = APIRouter(prefix="/auth")
 
@@ -77,26 +77,6 @@ def register(
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
-    # response.set_cookie(
-    #     key="access_token",
-    #     value=access_token,
-    #     httponly=True,
-    #     secure=False,
-    #     samesite="lax",
-    #     max_age=1800,
-    #     path="/"
-    # )
-    #
-    # response.set_cookie(
-    #     key="refresh_token",
-    #     value=refresh_token,
-    #     httponly=True,
-    #     secure=False,
-    #     samesite="lax",
-    #     max_age=604800,
-    #     path="/"
-    # )
-
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
@@ -124,26 +104,6 @@ def login(
 
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
-
-    # response.set_cookie(
-    #     key="access_token",
-    #     value=access_token,
-    #     httponly=True,
-    #     secure=False,
-    #     samesite="lax",
-    #     max_age=1800,
-    #     path="/"
-    # )
-    #
-    # response.set_cookie(
-    #     key="refresh_token",
-    #     value=refresh_token,
-    #     httponly=True,
-    #     secure=False,
-    #     samesite="lax",
-    #     max_age=604800,
-    #     path="/",
-    # )
 
     return {
         "access_token": access_token,
