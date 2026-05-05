@@ -1,6 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import apiClient from '../../api/client';
 import '../../css/LinkStatsTable.css';
+
+const SORT_OPTIONS = [
+    {value: 'created_at-desc', label: 'По дате создания (сначала новые)'},
+    {value: 'created_at-asc', label: 'По дате создания (сначала старые)'},
+    {value: 'clicks_count-desc', label: 'По переходам (по убыванию)'},
+    {value: 'clicks_count-asc', label: 'По переходам (по возрастанию)'},
+    {value: 'last_clicked_at-desc', label: 'По последнему переходу (сначала недавние)'},
+    {value: 'last_clicked_at-asc', label: 'По последнему переходу (сначала старые)'},
+];
 
 export const LinkStatsTable = () => {
     const [links, setLinks] = useState([]);
@@ -8,13 +17,33 @@ export const LinkStatsTable = () => {
     const [error, setError] = useState('');
     const [filterText, setFilterText] = useState('');
 
-    // Добавлены состояния для сортировки
     const [sortField, setSortField] = useState('created_at');
     const [sortOrder, setSortOrder] = useState('desc');
+    const [sortMenuOpen, setSortMenuOpen] = useState(false);
+    const sortDropdownRef = useRef(null);
 
     useEffect(() => {
         fetchLinks();
     }, []);
+
+    useEffect(() => {
+        const handlePointerDown = (e) => {
+            if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target)) {
+                setSortMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handlePointerDown);
+        return () => document.removeEventListener('mousedown', handlePointerDown);
+    }, []);
+
+    useEffect(() => {
+        if (!sortMenuOpen) return;
+        const onKey = (e) => {
+            if (e.key === 'Escape') setSortMenuOpen(false);
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [sortMenuOpen]);
 
     const fetchLinks = async () => {
         setLoading(true);
@@ -111,7 +140,7 @@ export const LinkStatsTable = () => {
     }
 
     // Фильтрация
-    let processedLinks = links.filter(link => {
+    let processedLinks = links.filter((link) => {
         const searchLower = filterText.toLowerCase();
         return (
             (link.original_url && link.original_url.toLowerCase().includes(searchLower)) ||
@@ -139,37 +168,69 @@ export const LinkStatsTable = () => {
         return 0;
     });
 
+    const sortKey = `${sortField}-${sortOrder}`;
+    const activeSortLabel =
+        SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? SORT_OPTIONS[0].label;
+
+    const applySortValue = (value) => {
+        const lastDash = value.lastIndexOf('-');
+        const field = value.slice(0, lastDash);
+        const order = value.slice(lastDash + 1);
+        setSortField(field);
+        setSortOrder(order);
+        setSortMenuOpen(false);
+    };
+
     return (
         <div className="stats-container">
             <h2>Статистика ссылок</h2>
 
-            {/* Панель с фильтром и сортировкой */}
-            <div className="controls-container" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+            <div className="stats-controls" role="search" aria-label="Поиск и сортировка ссылок">
                 <input
-                    type="text"
-                    placeholder="Поиск по ссылкам..."
+                    type="search"
+                    placeholder="Поиск по длинной ссылке..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                     className="filter-input"
-                    style={{ flex: 1, padding: '10px', boxSizing: 'border-box' }}
+                    autoComplete="off"
                 />
-                <select
-                    value={`${sortField}-${sortOrder}`}
-                    onChange={(e) => {
-                        const [field, order] = e.target.value.split('-');
-                        setSortField(field);
-                        setSortOrder(order);
-                    }}
-                    className="sort-select"
-                    style={{ padding: '10px', boxSizing: 'border-box' }}
-                >
-                    <option value="created_at-desc">По дате создания (сначала новые)</option>
-                    <option value="created_at-asc">По дате создания (сначала старые)</option>
-                    <option value="clicks_count-desc">По переходам (по убыванию)</option>
-                    <option value="clicks_count-asc">По переходам (по возрастанию)</option>
-                    <option value="last_clicked_at-desc">По последнему переходу (сначала недавние)</option>
-                    <option value="last_clicked_at-asc">По последнему переходу (сначала старые)</option>
-                </select>
+                <div className="sort-dropdown" ref={sortDropdownRef}>
+                    <button
+                        type="button"
+                        id="sort-dropdown-trigger"
+                        className="sort-dropdown-trigger"
+                        aria-haspopup="listbox"
+                        aria-expanded={sortMenuOpen}
+                        aria-controls="sort-dropdown-listbox"
+                        aria-label="Сортировка списка"
+                        onClick={() => setSortMenuOpen((open) => !open)}
+                    >
+                        <span className="sort-dropdown-value">{activeSortLabel}</span>
+                        <span className="sort-dropdown-chevron" aria-hidden />
+                    </button>
+                    {sortMenuOpen && (
+                        <ul
+                            id="sort-dropdown-listbox"
+                            className="sort-dropdown-menu"
+                            role="listbox"
+                            aria-labelledby="sort-dropdown-trigger"
+                        >
+                            {SORT_OPTIONS.map((opt) => (
+                                <li key={opt.value} className="sort-dropdown-item" role="presentation">
+                                    <button
+                                        type="button"
+                                        role="option"
+                                        aria-selected={opt.value === sortKey}
+                                        className={`sort-dropdown-option${opt.value === sortKey ? ' is-active' : ''}`}
+                                        onClick={() => applySortValue(opt.value)}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
 
             <div className="table-wrapper">
@@ -187,8 +248,8 @@ export const LinkStatsTable = () => {
                     {processedLinks.map((link) => {
                         const shortUrl = getShortUrl(link.short_code);
                         return (
-                            <tr key={link.id}>
-                                <td className="original-url">
+                            <tr key={link.id} className="stats-card-row">
+                                <td className="original-url" data-label="Исходная ссылка">
                                     <div className="original-url-wrapper">
                                         <a
                                             href={link.original_url}
@@ -207,7 +268,7 @@ export const LinkStatsTable = () => {
                                         </button>
                                     </div>
                                 </td>
-                                <td className="short-url">
+                                <td className="short-url" data-label="Короткая ссылка">
                                     <div className="short-url-wrapper">
                                       <span className="short-url-text" title={shortUrl}>
                                         {shortUrl}
@@ -220,13 +281,13 @@ export const LinkStatsTable = () => {
                                         </button>
                                     </div>
                                 </td>
-                                <td className="clicks">
+                                <td className="clicks" data-label="Переходы">
                                     <span className="clicks-count">{link.clicks_count || 0}</span>
                                 </td>
-                                <td className="last-click">
+                                <td className="last-click" data-label="Последний переход">
                                     {formatDate(link.last_clicked_at)}
                                 </td>
-                                <td className="actions">
+                                <td className="actions" data-label="Действия">
                                     <div className="actions-wrapper">
                                         <button
                                             onClick={() => downloadQR(shortUrl, link.short_code)}
@@ -246,8 +307,8 @@ export const LinkStatsTable = () => {
                         );
                     })}
                     {processedLinks.length === 0 && (
-                        <tr>
-                            <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                        <tr className="stats-empty-row">
+                            <td colSpan="5" className="stats-no-results">
                                 По вашему запросу ничего не найдено
                             </td>
                         </tr>

@@ -2,6 +2,9 @@
     max-width: 600px;
     margin: 40px auto;
     padding: 30px;
+    padding-left: max(30px, env(safe-area-inset-left));
+    padding-right: max(30px, env(safe-area-inset-right));
+    padding-bottom: max(30px, env(safe-area-inset-bottom));
     background: var(--bg-card);
     border-radius: 20px;
     box-shadow: var(--shadow);
@@ -231,12 +234,24 @@
 
 @media (max-width: 768px) {
     .create-link-container {
-        margin: 20px;
-        padding: 20px;
+        margin: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
+        padding: 22px max(18px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom))
+            max(18px, env(safe-area-inset-left));
+        border-radius: 18px;
     }
 
     .create-link-container h2 {
-        font-size: 1.5rem;
+        font-size: 1.45rem;
+    }
+
+    .url-input {
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    .submit-btn {
+        min-height: 50px;
+        font-size: 1.05rem;
     }
 
     .short-url-box {
@@ -271,18 +286,26 @@
 
 @media (max-width: 480px) {
     .create-link-container {
-        margin: 15px;
-        padding: 15px;
+        margin: 12px max(12px, env(safe-area-inset-right)) 20px max(12px, env(safe-area-inset-left));
+        padding: 18px max(14px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom))
+            max(14px, env(safe-area-inset-left));
+        border-radius: 16px;
+    }
+
+    .create-link-container h2 {
+        font-size: 1.25rem;
     }
 
     .url-input {
-        padding: 10px 12px;
-        font-size: 14px;
+        padding: 12px 14px;
+        font-size: 16px;
+        min-height: 48px;
     }
 
     .submit-btn {
-        padding: 12px;
+        padding: 14px;
         font-size: 1rem;
+        min-height: 50px;
     }
 
     .short-url {

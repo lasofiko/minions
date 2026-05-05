@@ -72,10 +72,6 @@
     box-shadow: var(--shadow);
 }
 
-.form-group input::placeholder {
-    color: #cbd5e0;
-}
-
 .error-message {
     background-color: #fff5f5;
     color: var(--error);
@@ -107,4 +103,77 @@
 .auth-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+[data-theme='dark'] .auth-tabs button.active {
+    background: rgba(95, 145, 170, 0.2);
+}
+
+[data-theme='dark'] .error-message {
+    background-color: rgba(252, 129, 129, 0.12);
+}
+
+.form-group input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+            max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+        align-items: flex-start;
+        padding-top: max(28px, env(safe-area-inset-top));
+    }
+
+    .auth-card {
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+
+    .auth-card h1 {
+        font-size: 2rem;
+    }
+
+    .auth-tabs {
+        margin-bottom: 22px;
+    }
+
+    .auth-tabs button {
+        padding: 12px 10px;
+        font-size: 1rem;
+        min-height: 46px;
+    }
+
+    .form-group input {
+        padding: 14px 14px;
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    .auth-btn {
+        padding: 14px;
+        font-size: 1.05rem;
+        min-height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 22px 18px;
+        border-radius: 16px;
+    }
+
+    .auth-card h1 {
+        font-size: 1.65rem;
+    }
+
+    .auth-tabs button {
+        font-size: 0.93rem;
+        padding: 10px 8px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
 }
