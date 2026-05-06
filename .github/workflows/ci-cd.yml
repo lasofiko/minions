@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -22,29 +22,27 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff pytest
-          pip install -r requirements.txt
+          pip install ruff pytest httpx
+          pip install -r backend/requirements.txt
 
       - name: Lint with ruff
-        run: |
-          ruff check ./app || echo "No linting issues"
+        run: ruff check backend/app
 
       - name: Run tests
-        run: |
-          pytest tests/ -v --tb=short || echo "No tests found"
+        run: pytest tests/ -v --tb=short
 
   test-frontend:
     runs-on: ubuntu-latest
@@ -55,20 +53,20 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: './frontend/package-lock.json'
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: ./frontend
+        working-directory: frontend
         run: npm ci
 
       - name: Lint
-        working-directory: ./frontend
-        run: npm run lint || echo "No linting configured"
+        working-directory: frontend
+        run: npm run lint
 
       - name: Build frontend
-        working-directory: ./frontend
+        working-directory: frontend
         run: npm run build
 
   docker-test:
@@ -83,11 +81,11 @@ jobs:
 
       - name: Test backend Docker build
         run: |
-          docker build -t backend-test .
+          docker build -t backend-test ./backend
           docker run -d --name backend-test -p 8000:8000 backend-test
-          sleep 10
+          sleep 8
           docker ps | grep backend-test
-          if curl -f http://localhost:8000/docs; then
+          if curl -fsS http://localhost:8000/docs >/dev/null; then
             echo "Backend is responding"
           else
             echo "Backend is not responding"
@@ -99,11 +97,11 @@ jobs:
 
       - name: Test frontend Docker build
         run: |
-          docker build -t frontend-test ./frontend
-          docker run -d --name frontend-test -p 5173:5173 frontend-test
-          sleep 5
+          docker build -f ./frontend/Dockerfile.prod -t frontend-test ./frontend
+          docker run -d --name frontend-test -p 8080:80 frontend-test
+          sleep 3
           docker ps | grep frontend-test
-          if curl -f http://localhost:5173/; then
+          if curl -fsS http://localhost:8080/ >/dev/null; then
             echo "Frontend is responding"
           else
             echo "Frontend is not responding"
@@ -148,7 +146,8 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
+          file: ./backend/Dockerfile.prod
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
@@ -169,6 +168,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
+          file: ./frontend/Dockerfile.prod
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
@@ -180,7 +180,7 @@ jobs:
   #   needs: build-and-push
   #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
   #   environment: production
-
+  #
   #   steps:
   #     - name: Deploy via SSH
   #       uses: appleboy/ssh-action@v1.0.3
@@ -192,21 +192,21 @@ jobs:
   #         script: |
   #           set -e
   #           echo "Starting deployment..."
-            
+  #
   #           cd /opt/minions || exit 1
-            
+  #
   #           echo "Pulling latest images..."
   #           docker pull ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
   #           docker pull ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
-            
+  #
   #           echo "Restarting services..."
   #           docker-compose down
   #           docker-compose up -d
-            
+  #
   #           echo "Cleaning up old images..."
   #           docker system prune -f
-            
+  #
   #           echo "Deployment completed!"
-            
+  #
   #           sleep 5
   #           docker ps

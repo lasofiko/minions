@@ -1,22 +1,16 @@
-import React, {createContext, useState, useContext, useEffect} from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import Cookies from 'js-cookie';
-
-const AuthContext = createContext();
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
-};
+import { AuthContext } from './auth-context';
 
 // настройки
-const ACCESS_TOKEN_EXPIRE_DAYS = Number(import.meta.env.VITE_ACCESS_TOKEN_EXPIRE_MINUTES) / (24 * 60);
-const REFRESH_TOKEN_EXPIRE_DAYS = Number(import.meta.env.VITE_REFRESH_TOKEN_EXPIRE_DAYS);
+const ACCESS_TOKEN_EXPIRE_DAYS =
+    Number(import.meta.env.VITE_ACCESS_TOKEN_EXPIRE_MINUTES) / (24 * 60);
+const REFRESH_TOKEN_EXPIRE_DAYS = Number(
+    import.meta.env.VITE_REFRESH_TOKEN_EXPIRE_DAYS
+);
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -36,7 +30,7 @@ export const AuthProvider = ({children}) => {
             // данные текущего пользователя
             const response = await apiClient.get('/auth/me');
             setUser(response.data);
-        } catch (error) {
+        } catch {
             // токен невалидный
             Cookies.remove('access_token');
             Cookies.remove('refresh_token');
@@ -98,5 +92,7 @@ export const AuthProvider = ({children}) => {
         isAuthenticated: !!user,
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    );
 };

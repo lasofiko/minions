@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import '../css/Auth.css';
 
 export const Auth = () => {
@@ -44,7 +44,6 @@ export const Auth = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <h1>Relink</h1>
-                <p className="auth-subtitle">Управление ссылками и QR-кодами</p>
 
                 <div className="auth-tabs">
                     <button

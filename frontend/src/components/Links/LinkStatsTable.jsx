@@ -1,15 +1,49 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import apiClient from '../../api/client';
 import '../../css/LinkStatsTable.css';
+
+const SORT_OPTIONS = [
+    {value: 'created_at-desc', label: 'По дате создания (сначала новые)'},
+    {value: 'created_at-asc', label: 'По дате создания (сначала старые)'},
+    {value: 'clicks_count-desc', label: 'По переходам (по убыванию)'},
+    {value: 'clicks_count-asc', label: 'По переходам (по возрастанию)'},
+    {value: 'last_clicked_at-desc', label: 'По последнему переходу (сначала недавние)'},
+    {value: 'last_clicked_at-asc', label: 'По последнему переходу (сначала старые)'},
+];
 
 export const LinkStatsTable = () => {
     const [links, setLinks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [filterText, setFilterText] = useState('');
+
+    const [sortField, setSortField] = useState('created_at');
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [sortMenuOpen, setSortMenuOpen] = useState(false);
+    const sortDropdownRef = useRef(null);
 
     useEffect(() => {
         fetchLinks();
     }, []);
+
+    useEffect(() => {
+        const handlePointerDown = (e) => {
+            if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target)) {
+                setSortMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handlePointerDown);
+        return () => document.removeEventListener('mousedown', handlePointerDown);
+    }, []);
+
+    useEffect(() => {
+        if (!sortMenuOpen) return;
+        const onKey = (e) => {
+            if (e.key === 'Escape') setSortMenuOpen(false);
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [sortMenuOpen]);
 
     const fetchLinks = async () => {
         setLoading(true);
@@ -25,7 +59,7 @@ export const LinkStatsTable = () => {
         }
     };
 
-    const copyToClipboard = (text, type) => {
+    const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
     };
 
@@ -70,7 +104,6 @@ export const LinkStatsTable = () => {
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
-            // секунды убраны
         });
     };
 
@@ -106,9 +139,99 @@ export const LinkStatsTable = () => {
         );
     }
 
+    // Фильтрация
+    let processedLinks = links.filter((link) => {
+        const searchLower = filterText.toLowerCase();
+        return (
+            (link.original_url && link.original_url.toLowerCase().includes(searchLower)) ||
+            (link.short_code && link.short_code.toLowerCase().includes(searchLower))
+        );
+    });
+
+    // Сортировка
+    processedLinks.sort((a, b) => {
+        let valA, valB;
+
+        if (sortField === 'created_at') {
+            valA = a.created_at ? new Date(a.created_at).getTime() : a.id;
+            valB = b.created_at ? new Date(b.created_at).getTime() : b.id;
+        } else if (sortField === 'last_clicked_at') {
+            valA = a.last_clicked_at ? new Date(a.last_clicked_at).getTime() : 0;
+            valB = b.last_clicked_at ? new Date(b.last_clicked_at).getTime() : 0;
+        } else if (sortField === 'clicks_count') {
+            valA = a.clicks_count || 0;
+            valB = b.clicks_count || 0;
+        }
+
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const sortKey = `${sortField}-${sortOrder}`;
+    const activeSortLabel =
+        SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? SORT_OPTIONS[0].label;
+
+    const applySortValue = (value) => {
+        const lastDash = value.lastIndexOf('-');
+        const field = value.slice(0, lastDash);
+        const order = value.slice(lastDash + 1);
+        setSortField(field);
+        setSortOrder(order);
+        setSortMenuOpen(false);
+    };
+
     return (
         <div className="stats-container">
             <h2>Статистика ссылок</h2>
+
+            <div className="stats-controls" role="search" aria-label="Поиск и сортировка ссылок">
+                <input
+                    type="search"
+                    placeholder="Поиск по длинной ссылке..."
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                    className="filter-input"
+                    autoComplete="off"
+                />
+                <div className="sort-dropdown" ref={sortDropdownRef}>
+                    <button
+                        type="button"
+                        id="sort-dropdown-trigger"
+                        className="sort-dropdown-trigger"
+                        aria-haspopup="listbox"
+                        aria-expanded={sortMenuOpen}
+                        aria-controls="sort-dropdown-listbox"
+                        aria-label="Сортировка списка"
+                        onClick={() => setSortMenuOpen((open) => !open)}
+                    >
+                        <span className="sort-dropdown-value">{activeSortLabel}</span>
+                        <span className="sort-dropdown-chevron" aria-hidden />
+                    </button>
+                    {sortMenuOpen && (
+                        <ul
+                            id="sort-dropdown-listbox"
+                            className="sort-dropdown-menu"
+                            role="listbox"
+                            aria-labelledby="sort-dropdown-trigger"
+                        >
+                            {SORT_OPTIONS.map((opt) => (
+                                <li key={opt.value} className="sort-dropdown-item" role="presentation">
+                                    <button
+                                        type="button"
+                                        role="option"
+                                        aria-selected={opt.value === sortKey}
+                                        className={`sort-dropdown-option${opt.value === sortKey ? ' is-active' : ''}`}
+                                        onClick={() => applySortValue(opt.value)}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
 
             <div className="table-wrapper">
                 <table className="stats-table">
@@ -122,11 +245,11 @@ export const LinkStatsTable = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {links.map((link) => {
+                    {processedLinks.map((link) => {
                         const shortUrl = getShortUrl(link.short_code);
                         return (
-                            <tr key={link.id}>
-                                <td className="original-url">
+                            <tr key={link.id} className="stats-card-row">
+                                <td className="original-url" data-label="Исходная ссылка">
                                     <div className="original-url-wrapper">
                                         <a
                                             href={link.original_url}
@@ -138,33 +261,33 @@ export const LinkStatsTable = () => {
                                             {truncateUrl(link.original_url)}
                                         </a>
                                         <button
-                                            onClick={() => copyToClipboard(link.original_url, 'Длинная ссылка')}
+                                            onClick={() => copyToClipboard(link.original_url)}
                                             className="text-btn copy-original-btn"
                                         >
                                             Копировать
                                         </button>
                                     </div>
                                 </td>
-                                <td className="short-url">
+                                <td className="short-url" data-label="Короткая ссылка">
                                     <div className="short-url-wrapper">
-                      <span className="short-url-text" title={shortUrl}>
-                        {shortUrl}
-                      </span>
+                                      <span className="short-url-text" title={shortUrl}>
+                                        {shortUrl}
+                                      </span>
                                         <button
-                                            onClick={() => copyToClipboard(shortUrl, 'Короткая ссылка')}
+                                            onClick={() => copyToClipboard(shortUrl)}
                                             className="text-btn copy-short-btn"
                                         >
                                             Копировать
                                         </button>
                                     </div>
                                 </td>
-                                <td className="clicks">
+                                <td className="clicks" data-label="Переходы">
                                     <span className="clicks-count">{link.clicks_count || 0}</span>
                                 </td>
-                                <td className="last-click">
+                                <td className="last-click" data-label="Последний переход">
                                     {formatDate(link.last_clicked_at)}
                                 </td>
-                                <td className="actions">
+                                <td className="actions" data-label="Действия">
                                     <div className="actions-wrapper">
                                         <button
                                             onClick={() => downloadQR(shortUrl, link.short_code)}
@@ -183,6 +306,13 @@ export const LinkStatsTable = () => {
                             </tr>
                         );
                     })}
+                    {processedLinks.length === 0 && (
+                        <tr className="stats-empty-row">
+                            <td colSpan="5" className="stats-no-results">
+                                По вашему запросу ничего не найдено
+                            </td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
             </div>

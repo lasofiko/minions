@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { CreateLink } from '../components/Links/CreateLink';
 import { LinkStatsTable } from '../components/Links/LinkStatsTable';
 import { MoonIcon, SunIcon } from '../components/Icons/ThemeIcons';
