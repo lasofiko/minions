@@ -22,6 +22,25 @@ export const LinkStatsTable = () => {
     const [sortMenuOpen, setSortMenuOpen] = useState(false);
     const sortDropdownRef = useRef(null);
 
+    const [editingLink, setEditingLink] = useState(null);
+    const [editDescription, setEditDescription] = useState('');
+
+    const handleEditDescription = (link) => {
+        setEditingLink(link.short_code);
+        setEditDescription(link.description || '');
+    };
+
+    const saveDescription = async (shortCode) => {
+        try {
+            await apiClient.put(`/links/${shortCode}`, { description: editDescription || null });
+            setLinks(links.map(l => l.short_code === shortCode ? { ...l, description: editDescription || null } : l));
+            setEditingLink(null);
+        } catch (err) {
+            console.error('Ошибка при обновлении:', err);
+            alert(err.response?.data?.detail || 'Ошибка при обновлении описания');
+        }
+    };
+
     useEffect(() => {
         fetchLinks();
     }, []);
@@ -239,6 +258,7 @@ export const LinkStatsTable = () => {
                     <tr>
                         <th>Длинная ссылка</th>
                         <th>Короткая ссылка</th>
+                        <th>Описание</th>
                         <th>Переходы</th>
                         <th>Последний переход</th>
                         <th>Действия</th>
@@ -281,6 +301,25 @@ export const LinkStatsTable = () => {
                                         </button>
                                     </div>
                                 </td>
+                                <td className="description" data-label="Описание">
+                                    {editingLink === link.short_code ? (
+                                        <div className="description-edit">
+                                            <input
+                                                type="text"
+                                                value={editDescription}
+                                                onChange={(e) => setEditDescription(e.target.value)}
+                                                className="description-input"
+                                            />
+                                            <button onClick={() => saveDescription(link.short_code)} className="text-btn">Сохранить</button>
+                                            <button onClick={() => setEditingLink(null)} className="text-btn">Отмена</button>
+                                        </div>
+                                    ) : (
+                                        <div className="description-view" onDoubleClick={() => handleEditDescription(link)}>
+                                            <span>{link.description || '—'}</span>
+                                            <button onClick={() => handleEditDescription(link)} className="text-btn edit-desc-btn">✎</button>
+                                        </div>
+                                    )}
+                                </td>
                                 <td className="clicks" data-label="Переходы">
                                     <span className="clicks-count">{link.clicks_count || 0}</span>
                                 </td>
@@ -308,7 +347,7 @@ export const LinkStatsTable = () => {
                     })}
                     {processedLinks.length === 0 && (
                         <tr className="stats-empty-row">
-                            <td colSpan="5" className="stats-no-results">
+                            <td colSpan="6" className="stats-no-results">
                                 По вашему запросу ничего не найдено
                             </td>
                         </tr>

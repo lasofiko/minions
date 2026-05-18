@@ -4,6 +4,7 @@ import '../../css/CreateLink.css';
 
 export const CreateLink = () => {
     const [originalUrl, setOriginalUrl] = useState('');
+    const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [result, setResult] = useState(null);
@@ -29,11 +30,13 @@ export const CreateLink = () => {
             }
 
             const response = await apiClient.post('/links/create', {
-                original_url: urlToProcess
+                original_url: urlToProcess,
+                description: description || null
             });
 
             setResult(response.data);
             setOriginalUrl('');
+            setDescription('');
         } catch (err) {
             setError(err.response?.data?.detail || err.message || 'Ошибка создания ссылки');
         } finally {
@@ -88,6 +91,16 @@ export const CreateLink = () => {
                         value={originalUrl}
                         onChange={(e) => setOriginalUrl(e.target.value)}
                         required
+                        disabled={loading}
+                        className="url-input"
+                    />
+                </div>
+                <div className="form-group">
+                    <input
+                        type="text"
+                        placeholder="Описание (необязательно)"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         disabled={loading}
                         className="url-input"
                     />

@@ -16,6 +16,7 @@ def create_link(db: Session, link_schema: LinkCreate, owner_id: int):
     db_link = Link(
         original_url=link_schema.original_url,
         short_code=code,
+        description=link_schema.description,
         owner_id=owner_id
     )
 
