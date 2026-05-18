@@ -7,10 +7,16 @@ import '../css/Dashboard.css';
 
 export const Dashboard = () => {
     const { user, logout } = useAuth();
-    const [activeTab, setActiveTab] = useState('create');
+    const [activeTab, setActiveTab] = useState(() => {
+        return localStorage.getItem('activeTab') || 'create';
+    });
     const [theme, setTheme] = useState(() => {
         return localStorage.getItem('theme') || 'light';
     });
+
+    useEffect(() => {
+        localStorage.setItem('activeTab', activeTab);
+    }, [activeTab]);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
