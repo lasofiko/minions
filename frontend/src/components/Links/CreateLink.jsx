@@ -17,14 +17,19 @@ export const CreateLink = () => {
         setShowQR(false);
 
         try {
+            let urlToProcess = originalUrl.trim();
+            if (!urlToProcess.startsWith('http://') && !urlToProcess.startsWith('https://')) {
+                urlToProcess = 'https://' + urlToProcess;
+            }
+
             try {
-                new URL(originalUrl);
+                new URL(urlToProcess);
             } catch {
-                throw new Error('Введите корректную ссылку (с http:// или https://)');
+                throw new Error('Введите корректную ссылку');
             }
 
             const response = await apiClient.post('/links/create', {
-                original_url: originalUrl
+                original_url: urlToProcess
             });
 
             setResult(response.data);
