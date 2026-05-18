@@ -86,8 +86,8 @@ export const CreateLink = () => {
             <form onSubmit={handleSubmit} className="create-form">
                 <div className="form-group">
                     <input
-                        type="url"
-                        placeholder="Введите длинную ссылку (https://example.com)"
+                        type="text"
+                        placeholder="Введите длинную ссылку (например, example.com)"
                         value={originalUrl}
                         onChange={(e) => setOriginalUrl(e.target.value)}
                         required
