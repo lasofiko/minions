@@ -84,7 +84,6 @@
     box-shadow: 0 0 0 3px rgba(95, 145, 170, 0.22);
 }
 
-/* Кастомный выпадающий список сортировки */
 .sort-dropdown {
     position: relative;
     align-self: stretch;
@@ -306,7 +305,6 @@
     border-radius: 6px;
 }
 
-/* Колонка «Описание» */
 .description {
     min-width: 180px;
     max-width: 260px;
@@ -747,7 +745,6 @@
     }
 }
 
-/* Узкие телефоны: карточки вместо широкой таблицы */
 @media (max-width: 640px) {
     .stats-container {
         margin-top: 12px;

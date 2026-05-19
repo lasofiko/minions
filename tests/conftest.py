@@ -87,12 +87,60 @@ def refresh_headers(test_user):
 
 
 @pytest.fixture
+def other_user(db_session):
+    user = User(
+        username="otheruser",
+        email="other@example.com",
+        hashed_password=get_password_hash("password123"),
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def other_auth_headers(other_user):
+    token = create_access_token(data={"sub": str(other_user.id)})
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def inactive_user(db_session):
+    user = User(
+        username="inactive",
+        email="inactive@example.com",
+        hashed_password=get_password_hash("password123"),
+        is_active=False,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
 def test_link(db_session, test_user):
     link = Link(
         original_url="https://example.com",
         short_code="abc123",
         owner_id=test_user.id,
-        clicks_count=0
+        clicks_count=0,
+    )
+    db_session.add(link)
+    db_session.commit()
+    db_session.refresh(link)
+    return link
+
+
+@pytest.fixture
+def other_user_link(db_session, other_user):
+    link = Link(
+        original_url="https://other.com",
+        short_code="other1",
+        owner_id=other_user.id,
+        clicks_count=0,
     )
     db_session.add(link)
     db_session.commit()

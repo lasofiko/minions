@@ -81,3 +81,41 @@ class TestAuth:
             headers={"Authorization": "Bearer invalid.token.here"},
         )
         assert response.status_code == 401
+
+    def test_login_unknown_email(self, client):
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "nobody@example.com", "password": "password123"},
+        )
+        assert response.status_code == 401
+        assert "Неверный email или пароль" in response.json()["detail"]
+
+    def test_login_inactive_user(self, client, inactive_user):
+        response = client.post(
+            "/api/auth/login",
+            json={"email": inactive_user.email, "password": "password123"},
+        )
+        assert response.status_code == 400
+        assert "деактивирован" in response.json()["detail"]
+
+    def test_register_invalid_email(self, client):
+        response = client.post(
+            "/api/auth/register",
+            json={
+                "username": "badmail",
+                "email": "not-an-email",
+                "password": "12345678",
+            },
+        )
+        assert response.status_code == 422
+
+    def test_refresh_invalid_token(self, client):
+        response = client.post(
+            "/api/auth/refresh",
+            headers={"Authorization": "Bearer invalid.token.here"},
+        )
+        assert response.status_code == 401
+
+    def test_refresh_without_token(self, client):
+        response = client.post("/api/auth/refresh")
+        assert response.status_code in (401, 403)
