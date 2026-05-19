@@ -34,7 +34,7 @@ export const Auth = () => {
             }
             navigate('/dashboard');
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.detail || err.message || 'Произошла ошибка');
         } finally {
             setLoading(false);
         }
