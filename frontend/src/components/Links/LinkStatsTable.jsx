@@ -163,7 +163,8 @@ export const LinkStatsTable = () => {
         const searchLower = filterText.toLowerCase();
         return (
             (link.original_url && link.original_url.toLowerCase().includes(searchLower)) ||
-            (link.short_code && link.short_code.toLowerCase().includes(searchLower))
+            (link.short_code && link.short_code.toLowerCase().includes(searchLower)) ||
+            (link.description && link.description.toLowerCase().includes(searchLower))
         );
     });
 
@@ -207,7 +208,7 @@ export const LinkStatsTable = () => {
             <div className="stats-controls" role="search" aria-label="Поиск и сортировка ссылок">
                 <input
                     type="search"
-                    placeholder="Поиск по длинной ссылке..."
+                    placeholder="Поиск по ссылке или описанию..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                     className="filter-input"
@@ -309,14 +310,51 @@ export const LinkStatsTable = () => {
                                                 value={editDescription}
                                                 onChange={(e) => setEditDescription(e.target.value)}
                                                 className="description-input"
+                                                placeholder="Заметка к ссылке"
+                                                maxLength={120}
+                                                autoFocus
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') saveDescription(link.short_code);
+                                                    if (e.key === 'Escape') setEditingLink(null);
+                                                }}
                                             />
-                                            <button onClick={() => saveDescription(link.short_code)} className="text-btn">Сохранить</button>
-                                            <button onClick={() => setEditingLink(null)} className="text-btn">Отмена</button>
+                                            <div className="description-edit-actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => saveDescription(link.short_code)}
+                                                    className="text-btn save-desc-btn"
+                                                >
+                                                    Сохранить
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEditingLink(null)}
+                                                    className="text-btn cancel-desc-btn"
+                                                >
+                                                    Отмена
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="description-view" onDoubleClick={() => handleEditDescription(link)}>
-                                            <span>{link.description || '—'}</span>
-                                            <button onClick={() => handleEditDescription(link)} className="text-btn edit-desc-btn">✎</button>
+                                        <div
+                                            className="description-view"
+                                            onDoubleClick={() => handleEditDescription(link)}
+                                            title="Двойной клик — редактировать"
+                                        >
+                                            <span
+                                                className={`description-text${link.description ? '' : ' is-empty'}`}
+                                            >
+                                                {link.description || 'Без описания'}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditDescription(link)}
+                                                className="text-btn edit-desc-btn"
+                                                aria-label="Редактировать описание"
+                                                title="Редактировать описание"
+                                            >
+                                                ✎
+                                            </button>
                                         </div>
                                     )}
                                 </td>
