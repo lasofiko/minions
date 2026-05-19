@@ -167,7 +167,6 @@ export const LinkStatsTable = () => {
         );
     });
 
-    // Сортировка
     processedLinks.sort((a, b) => {
         let valA, valB;
 

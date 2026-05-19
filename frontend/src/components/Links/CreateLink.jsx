@@ -53,7 +53,6 @@ export const CreateLink = () => {
         navigator.clipboard.writeText(getShortUrl());
     };
 
-    // Генерация QR кода через API
     const getQRCodeUrl = () => {
         const url = getShortUrl();
         return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;

@@ -12,7 +12,6 @@ export const useAuth = () => {
     return context;
 };
 
-// настройки
 const ACCESS_TOKEN_EXPIRE_DAYS =
     Number(import.meta.env.VITE_ACCESS_TOKEN_EXPIRE_MINUTES) / (24 * 60);
 const REFRESH_TOKEN_EXPIRE_DAYS = Number(
@@ -23,7 +22,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // есть ли сохраненный токен
     useEffect(() => {
         checkAuth();
     }, []);
@@ -36,11 +34,9 @@ export const AuthProvider = ({ children }) => {
         }
 
         try {
-            // данные текущего пользователя
             const response = await apiClient.get('/auth/me');
             setUser(response.data);
         } catch {
-            // токен невалидный
             Cookies.remove('access_token');
             Cookies.remove('refresh_token');
         } finally {
@@ -48,14 +44,12 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // вход
     const login = async (email, password) => {
         const response = await apiClient.post('/auth/login', {
             email,
             password,
         });
 
-        // токены в cookies
         Cookies.set('access_token', response.data.access_token, {
             expires: ACCESS_TOKEN_EXPIRE_DAYS,
             secure: false,
@@ -68,12 +62,10 @@ export const AuthProvider = ({ children }) => {
             sameSite: 'lax',
         });
 
-        // данные пользователя
         await checkAuth();
         return response.data;
     };
 
-    // регистрация
     const register = async (username, email, password) => {
         const response = await apiClient.post('/auth/register', {
             username,
@@ -85,7 +77,6 @@ export const AuthProvider = ({ children }) => {
         return response.data;
     };
 
-    // выход
     const logout = () => {
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
