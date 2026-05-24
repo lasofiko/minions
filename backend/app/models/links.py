@@ -11,7 +11,7 @@ class Link(Base):
     original_url = Column(String, nullable=False)
     short_code = Column(String, unique=True, index=True, nullable=False)
     description = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.now(ZoneInfo("Europe/Moscow")))
+    created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("Europe/Moscow")))
     clicks_count = Column(Integer, default=0)
     last_clicked_at = Column(DateTime, nullable=True)
 
