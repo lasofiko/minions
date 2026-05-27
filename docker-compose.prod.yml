@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: minions-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - minions-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - minions-network
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -6,12 +24,13 @@ services:
     container_name: minions-backend
     expose:
       - "8000"
-    volumes:
-      - ./backend/data:/app/data
     environment:
-      - DATABASE_URL=sqlite:///./data/links.db
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - SECRET_KEY=${SECRET_KEY}
       - ENVIRONMENT=production
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - minions-network
     restart: unless-stopped
@@ -42,6 +61,9 @@ services:
     networks:
       - minions-network
     restart: unless-stopped
+
+volumes:
+  minions-pgdata:
 
 networks:
   minions-network:
