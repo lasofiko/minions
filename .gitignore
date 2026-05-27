@@ -17,7 +17,7 @@ htmlcov/
 *.sqlite
 *.sqlite3
 /data/
-
+**/*.egg-info/
 .env
 .env.local
 .env.*.local

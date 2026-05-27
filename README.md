@@ -214,11 +214,17 @@ UI: http://localhost:5173 — Vite проксирует `/api` на `http://127.
 
 ### Альтернатива: UV
 
-В `backend/` есть `pyproject.toml` — можно ставить зависимости через [uv](https://github.com/astral-sh/uv):
+В корне репозитория есть `pyproject.toml` — можно ставить зависимости через [uv](https://github.com/astral-sh/uv) одним общим venv:
 
 ```bash
-cd backend
 uv sync --extra dev
+uv run uvicorn --app-dir backend app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Либо, если venv уже активирован:
+
+```bash
+uvicorn --app-dir backend app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ---
