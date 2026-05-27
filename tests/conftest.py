@@ -1,93 +1,101 @@
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import os
 
-from app.main import app
-from app.core.database import Base, get_db
+# 1) SECRET_KEY до любых импортов app
+os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
+# 2) DATABASE_URL — гоняем тесты на SQLite-in-memory, чтобы не зависеть от Postgres
+os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
+
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import StaticPool
+
+from app.api.deps import get_db_manager
+from app.core.database import Base
 from app.core.security import (
     create_access_token,
     create_refresh_token,
     get_password_hash,
 )
-from app.models.user import User
+from app.db_manager import DBManager
+from app.main import app
 from app.models.links import Link
+from app.models.user import User
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}
+engine = create_async_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
-TestingSessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
+TestingSessionLocal = async_sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
 
-Base.metadata.create_all(bind=engine)
 
-
-@pytest.fixture
-def db_session():
-    connection = engine.connect()
-    transaction = connection.begin()
-
-    session = TestingSessionLocal(bind=connection)
-
-    try:
+@pytest_asyncio.fixture
+async def db_session():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    async with TestingSessionLocal() as session:
         yield session
-    finally:
-        session.close()
-        transaction.rollback()
-        connection.close()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture
-def client(db_session):
+@pytest_asyncio.fixture
+async def client(db_session):
+    async def _override_db_manager():
+        yield DBManager(db_session)
 
-    def _get_test_db():
-        try:
-            yield db_session
-        finally:
-            pass
-
-    app.dependency_overrides[get_db] = _get_test_db
+    app.dependency_overrides[get_db_manager] = _override_db_manager
     try:
-        with TestClient(app) as test_client:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as test_client:
             yield test_client
     finally:
-        app.dependency_overrides.pop(get_db, None)
+        app.dependency_overrides.pop(get_db_manager, None)
 
 
-@pytest.fixture
-def test_user(db_session):
+@pytest_asyncio.fixture
+async def db_manager(db_session):
+    return DBManager(db_session)
+
+
+@pytest_asyncio.fixture
+async def test_user(db_session):
     user = User(
         username="testuser",
         email="test@example.com",
         hashed_password=get_password_hash("password123"),
-        is_active=True
+        is_active=True,
     )
     db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
+    await db_session.commit()
+    await db_session.refresh(user)
     return user
 
 
-@pytest.fixture
-def test_user_token(test_user):
+@pytest_asyncio.fixture
+async def test_user_token(test_user):
     return create_access_token(data={"sub": str(test_user.id)})
 
 
-@pytest.fixture
-def auth_headers(test_user_token):
+@pytest_asyncio.fixture
+async def auth_headers(test_user_token):
     return {"Authorization": f"Bearer {test_user_token}"}
 
 
-@pytest.fixture
-def refresh_headers(test_user):
+@pytest_asyncio.fixture
+async def refresh_headers(test_user):
     token = create_refresh_token(data={"sub": str(test_user.id)})
     return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.fixture
-def other_user(db_session):
+@pytest_asyncio.fixture
+async def other_user(db_session):
     user = User(
         username="otheruser",
         email="other@example.com",
@@ -95,19 +103,19 @@ def other_user(db_session):
         is_active=True,
     )
     db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
+    await db_session.commit()
+    await db_session.refresh(user)
     return user
 
 
-@pytest.fixture
-def other_auth_headers(other_user):
+@pytest_asyncio.fixture
+async def other_auth_headers(other_user):
     token = create_access_token(data={"sub": str(other_user.id)})
     return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.fixture
-def inactive_user(db_session):
+@pytest_asyncio.fixture
+async def inactive_user(db_session):
     user = User(
         username="inactive",
         email="inactive@example.com",
@@ -115,13 +123,13 @@ def inactive_user(db_session):
         is_active=False,
     )
     db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
+    await db_session.commit()
+    await db_session.refresh(user)
     return user
 
 
-@pytest.fixture
-def test_link(db_session, test_user):
+@pytest_asyncio.fixture
+async def test_link(db_session, test_user):
     link = Link(
         original_url="https://example.com",
         short_code="abc123",
@@ -129,13 +137,13 @@ def test_link(db_session, test_user):
         clicks_count=0,
     )
     db_session.add(link)
-    db_session.commit()
-    db_session.refresh(link)
+    await db_session.commit()
+    await db_session.refresh(link)
     return link
 
 
-@pytest.fixture
-def other_user_link(db_session, other_user):
+@pytest_asyncio.fixture
+async def other_user_link(db_session, other_user):
     link = Link(
         original_url="https://other.com",
         short_code="other1",
@@ -143,6 +151,6 @@ def other_user_link(db_session, other_user):
         clicks_count=0,
     )
     db_session.add(link)
-    db_session.commit()
-    db_session.refresh(link)
+    await db_session.commit()
+    await db_session.refresh(link)
     return link

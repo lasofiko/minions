@@ -1,45 +1,53 @@
-from app.services.links_service import create_link, get_user_stats, delete_link, get_url_and_update_stats
+import pytest
+
 from app.schemas.links import LinkCreate
+from app.services.exceptions import LinkNotFound
+from app.services.links_service import LinksService
 
 
 class TestLinksService:
 
-    def test_create_link_service(self, db_session, test_user):
-        link_data = LinkCreate(original_url="https://test.com")
-        result = create_link(db_session, link_data, test_user.id)
+    async def test_create_link_service(self, db_manager, test_user):
+        service = LinksService(db_manager)
+        result = await service.create(LinkCreate(original_url="https://test.com"), test_user.id)
 
         assert result is not None
         assert result.original_url == "https://test.com"
         assert len(result.short_code) == 6
 
-    def test_get_user_stats_empty(self, db_session, test_user):
-        stats = get_user_stats(db_session, test_user.id)
+    async def test_list_my_empty(self, db_manager, test_user):
+        service = LinksService(db_manager)
+        stats = await service.list_my(test_user.id)
         assert stats == []
 
-    def test_get_user_stats_with_links(self, db_session, test_user):
+    async def test_list_my_with_links(self, db_manager, db_session, test_user):
         from app.models.links import Link
         link = Link(original_url="https://test.com", short_code="code123", owner_id=test_user.id)
         db_session.add(link)
-        db_session.commit()
+        await db_session.commit()
 
-        stats = get_user_stats(db_session, test_user.id)
+        service = LinksService(db_manager)
+        stats = await service.list_my(test_user.id)
         assert len(stats) == 1
 
-    def test_get_url_and_update_stats_success(self, db_session, test_link):
-        url = get_url_and_update_stats(db_session, test_link.short_code)
+    async def test_resolve_and_track_increments(self, db_manager, test_link):
+        service = LinksService(db_manager)
+        url = await service.resolve_and_track(test_link.short_code)
         assert url == test_link.original_url
 
-        db_session.refresh(test_link)
+        await db_manager.refresh(test_link)
         assert test_link.clicks_count == 1
 
-    def test_get_url_and_update_stats_not_found(self, db_session):
-        url = get_url_and_update_stats(db_session, "nonexistent")
-        assert url is None
+    async def test_resolve_not_found(self, db_manager):
+        service = LinksService(db_manager)
+        with pytest.raises(LinkNotFound):
+            await service.resolve_and_track("nonexistent")
 
-    def test_delete_link_success(self, db_session, test_link):
-        result = delete_link(db_session, test_link.short_code, test_link.owner_id)
-        assert result is True
+    async def test_delete_success(self, db_manager, test_link):
+        service = LinksService(db_manager)
+        await service.delete(test_link.short_code, test_link.owner_id)
 
-    def test_delete_link_not_found(self, db_session, test_user):
-        result = delete_link(db_session, "nonexistent", test_user.id)
-        assert result is False
+    async def test_delete_not_found(self, db_manager, test_user):
+        service = LinksService(db_manager)
+        with pytest.raises(LinkNotFound):
+            await service.delete("nonexistent", test_user.id)

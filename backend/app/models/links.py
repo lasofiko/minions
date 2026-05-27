@@ -11,9 +11,9 @@ class Link(Base):
     original_url = Column(String, nullable=False)
     short_code = Column(String, unique=True, index=True, nullable=False)
     description = Column(String, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("Europe/Moscow")))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(ZoneInfo("Europe/Moscow")))
     clicks_count = Column(Integer, default=0)
-    last_clicked_at = Column(DateTime, nullable=True)
+    last_clicked_at = Column(DateTime(timezone=True), nullable=True)
 
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="links")
