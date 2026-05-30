@@ -1,14 +1,15 @@
 import os
 
-# 1) SECRET_KEY до любых импортов app
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production")
-# 2) DATABASE_URL — гоняем тесты на SQLite-in-memory, чтобы не зависеть от Postgres
-os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
+
+TEST_DATABASE_URL = os.environ.setdefault(
+    "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
+)
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool
 
 from app.api.deps import get_db_manager
 from app.core.database import Base
@@ -22,12 +23,9 @@ from app.main import app
 from app.models.links import Link
 from app.models.user import User
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
 engine = create_async_engine(
     TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
+    poolclass=NullPool,
 )
 TestingSessionLocal = async_sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
@@ -38,8 +36,10 @@ TestingSessionLocal = async_sessionmaker(
 async def db_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
     async with TestingSessionLocal() as session:
         yield session
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
@@ -52,7 +52,7 @@ async def client(db_session):
     app.dependency_overrides[get_db_manager] = _override_db_manager
     try:
         async with AsyncClient(
-            transport=ASGITransport(app=app), base_url="http://test"
+                transport=ASGITransport(app=app), base_url="http://test"
         ) as test_client:
             yield test_client
     finally:

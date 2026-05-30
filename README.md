@@ -113,7 +113,10 @@ flowchart TB
 
 - **Python 3.12**
 - **FastAPI** — REST API и OpenAPI (`/docs`)
-- **SQLAlchemy 2** — ORM, SQLite
+- **SQLAlchemy 2** — асинхронный ORM
+- **PostgreSQL** — основная реляционная СУБД 
+- **Alembic** — система контроля версий схемы базы данных (миграции)
+- **uv** — сверхбыстрый пакетный менеджер для Python
 - **Pydantic v2** — схемы запросов/ответов
 - **python-jose** — JWT (access + refresh)
 - **passlib[bcrypt]** — хеши паролей
@@ -179,6 +182,7 @@ minions/
 - Python **3.12+**
 - Node.js **20+** и npm
 - (опционально) Docker Desktop
+- Менеджер пакетов uv 
 
 ### Backend
 

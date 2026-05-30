@@ -39,3 +39,9 @@ package-dir = {"" = "backend"}
 [tool.setuptools.packages.find]
 where = ["backend"]
 include = ["app*"]
+
+[dependency-groups]
+dev = [
+    "asyncpg>=0.31.0",
+    "pytest-asyncio>=1.4.0",
+]
