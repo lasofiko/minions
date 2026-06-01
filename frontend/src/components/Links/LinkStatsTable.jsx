@@ -268,33 +268,33 @@ export const LinkStatsTable = () => {
                         const shortUrl = getShortUrl(link.short_code);
                         return (
                             <tr key={link.id} className="hover:bg-bg-secondary/50 transition-colors group">
-                                <td className="p-4 max-w-xs">
-                                    <div className="flex flex-col items-start gap-1">
+                                <td className="p-4 min-w-[300px]">
+                                    <div className="flex items-center gap-2.5 flex-wrap">
                                         <a
                                             href={link.original_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             title={link.original_url}
-                                            className="text-primary hover:text-primary-dark truncate w-full transition-colors"
+                                            className="flex-1 min-w-0 text-primary text-[13px] break-all hover:underline"
                                         >
-                                            {truncateUrl(link.original_url, 40)}
+                                            {truncateUrl(link.original_url)}
                                         </a>
                                         <button
                                             onClick={() => copyToClipboard(link.original_url)}
-                                            className="text-xs text-text-secondary hover:text-primary transition-colors md:opacity-0 md:group-hover:opacity-100"
+                                            className="shrink-0 cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-[#28a745] bg-[#28a745]/10 hover:bg-[#28a745]/20"
                                         >
                                             Копировать
                                         </button>
                                     </div>
                                 </td>
-                                <td className="p-4">
-                                    <div className="flex flex-col items-start gap-1">
-                                      <span className="font-medium text-text-primary truncate w-full" title={shortUrl}>
-                                        {shortUrl}
-                                      </span>
+                                <td className="p-4 min-w-[220px]">
+                                    <div className="flex items-center gap-2.5 flex-wrap">
+                                        <span className="font-mono text-[13px] text-text-primary break-all px-2 py-1 rounded-md" title={shortUrl}>
+                                            {shortUrl}
+                                        </span>
                                         <button
                                             onClick={() => copyToClipboard(shortUrl)}
-                                            className="text-xs text-text-secondary hover:text-primary transition-colors md:opacity-0 md:group-hover:opacity-100"
+                                            className="shrink-0 cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-primary bg-primary/10 hover:bg-primary/20"
                                         >
                                             Копировать
                                         </button>
@@ -344,22 +344,21 @@ export const LinkStatsTable = () => {
                                 <td className="p-4 text-text-secondary whitespace-nowrap">
                                     {formatDate(link.last_clicked_at)}
                                 </td>
-                                <td className="p-4">
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                <td className="p-4 min-w-[160px]">
+                                    <div className="flex flex-wrap justify-center gap-2">
                                         <button
                                             onClick={() => downloadQR(shortUrl, link.short_code)}
-                                            className="text-sm text-text-secondary hover:text-primary transition-colors flex items-center gap-1"
+                                            className="cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-[#6c757d] bg-[#6c757d]/10 hover:bg-[#6c757d]/20"
                                             title="Скачать QR код"
                                         >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                            <span className="hidden xl:inline">QR</span>
+                                            Скачать QR
                                         </button>
                                         <button
                                             onClick={() => deleteLink(link.short_code)}
-                                            className="text-sm text-error hover:text-error/80 transition-colors flex items-center gap-1"
+                                            className="cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-[#dc3545] bg-[#dc3545]/10 hover:bg-[#dc3545]/20"
                                             title="Удалить"
                                         >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            Удалить
                                         </button>
                                     </div>
                                 </td>
