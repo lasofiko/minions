@@ -1,4 +1,23 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: minions-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-minions}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-minions}
+      - POSTGRES_DB=${POSTGRES_DB:-minions}
+    ports:
+      - "5432:5432"   # только в dev; в docker-compose.prod.yml этого нет
+    volumes:
+      - minions-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-minions} -d ${POSTGRES_DB:-minions}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - minions-network
+
   backend:
     build: ./backend
     container_name: minions-backend
@@ -6,10 +25,15 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/app:/app/app
-      - ./backend/data:/app/data
+      - ./backend/migrations:/app/migrations
+      - ./backend/alembic.ini:/app/alembic.ini
     environment:
       - ENVIRONMENT=development
-      - DATABASE_URL=sqlite:///./data/dev.db
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-minions}:${POSTGRES_PASSWORD:-minions}@postgres:5432/${POSTGRES_DB:-minions}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-not-for-prod}
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - minions-network
 
@@ -33,6 +57,9 @@ services:
       - frontend
     networks:
       - minions-network
+
+volumes:
+  minions-pgdata:
 
 networks:
   minions-network:

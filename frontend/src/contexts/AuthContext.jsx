@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import apiClient from '../api/client';
+import apiClient, {
+    ACCESS_TOKEN_EXPIRE_DAYS,
+    REFRESH_TOKEN_EXPIRE_DAYS,
+    getCookieOptions,
+} from '../api/client';
 import Cookies from 'js-cookie';
 
 export const AuthContext = createContext(null);
@@ -11,12 +15,6 @@ export const useAuth = () => {
     }
     return context;
 };
-
-const ACCESS_TOKEN_EXPIRE_DAYS =
-    Number(import.meta.env.VITE_ACCESS_TOKEN_EXPIRE_MINUTES) / (24 * 60);
-const REFRESH_TOKEN_EXPIRE_DAYS = Number(
-    import.meta.env.VITE_REFRESH_TOKEN_EXPIRE_DAYS
-);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -50,17 +48,9 @@ export const AuthProvider = ({ children }) => {
             password,
         });
 
-        Cookies.set('access_token', response.data.access_token, {
-            expires: ACCESS_TOKEN_EXPIRE_DAYS,
-            secure: false,
-            sameSite: 'lax',
-        });
-
-        Cookies.set('refresh_token', response.data.refresh_token, {
-            expires: REFRESH_TOKEN_EXPIRE_DAYS,
-            secure: false,
-            sameSite: 'lax',
-        });
+        // токены в cookies
+        Cookies.set('access_token', response.data.access_token, getCookieOptions(ACCESS_TOKEN_EXPIRE_DAYS));
+        Cookies.set('refresh_token', response.data.refresh_token, getCookieOptions(REFRESH_TOKEN_EXPIRE_DAYS));
 
         await checkAuth();
         return response.data;

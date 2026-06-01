@@ -8,4 +8,17 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      // короткие ссылки: ровно 6 буквенно-цифровых символов в корне → в бэк
+      '^/[A-Za-z0-9]{6}$': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

@@ -162,7 +162,8 @@ export const LinkStatsTable = () => {
         const searchLower = filterText.toLowerCase();
         return (
             (link.original_url && link.original_url.toLowerCase().includes(searchLower)) ||
-            (link.short_code && link.short_code.toLowerCase().includes(searchLower))
+            (link.short_code && link.short_code.toLowerCase().includes(searchLower)) ||
+            (link.description && link.description.toLowerCase().includes(searchLower))
         );
     });
 
@@ -205,7 +206,7 @@ export const LinkStatsTable = () => {
             <div className="flex flex-col md:flex-row gap-4 mb-6" role="search" aria-label="Поиск и сортировка ссылок">
                 <input
                     type="search"
-                    placeholder="Поиск по длинной ссылке..."
+                    placeholder="Поиск по ссылке или описанию..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                     className="flex-grow p-3 rounded-lg border border-input-border bg-input-bg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors placeholder:text-text-secondary"
@@ -307,19 +308,27 @@ export const LinkStatsTable = () => {
                                                 value={editDescription}
                                                 onChange={(e) => setEditDescription(e.target.value)}
                                                 className="w-full p-2 rounded border border-input-border bg-input-bg text-text-primary focus:outline-none focus:border-primary text-sm"
+                                                placeholder="Заметка к ссылке"
+                                                maxLength={120}
                                                 autoFocus
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') saveDescription(link.short_code);
+                                                    if (e.key === 'Escape') setEditingLink(null);
+                                                }}
                                             />
                                             <div className="flex gap-2">
-                                                <button onClick={() => saveDescription(link.short_code)} className="text-xs text-success hover:text-success/80 transition-colors">Сохранить</button>
-                                                <button onClick={() => setEditingLink(null)} className="text-xs text-text-secondary hover:text-text-primary transition-colors">Отмена</button>
+                                                <button type="button" onClick={() => saveDescription(link.short_code)} className="text-xs text-success hover:text-success/80 transition-colors">Сохранить</button>
+                                                <button type="button" onClick={() => setEditingLink(null)} className="text-xs text-text-secondary hover:text-text-primary transition-colors">Отмена</button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex items-center gap-2 group/edit cursor-pointer" onDoubleClick={() => handleEditDescription(link)}>
+                                        <div className="flex items-center gap-2 group/edit cursor-pointer" onDoubleClick={() => handleEditDescription(link)} title="Двойной клик — редактировать">
                                             <span className="text-text-secondary">{link.description || '—'}</span>
-                                            <button 
-                                                onClick={() => handleEditDescription(link)} 
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditDescription(link)}
                                                 className="text-text-secondary hover:text-primary transition-colors opacity-0 group-hover/edit:opacity-100 md:group-hover:opacity-100"
+                                                aria-label="Редактировать описание"
                                                 title="Редактировать описание"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
