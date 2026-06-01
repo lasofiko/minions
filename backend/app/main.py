@@ -1,10 +1,17 @@
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from app.core.database import engine, Base
-from app.api.v1.router import router as api_v1_router
-from app.api.redirect import router as redirect_router
+from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+# ВАЖНО: сначала поднимаем логирование, чтобы handlers были на root-логгере
+# до того, как любой модуль вызовет logging.getLogger(__name__).
+from app.utils.logger import get_logger, setup_logging
+
+setup_logging()
+
+from app.api.exception_handlers import register_exception_handlers  # noqa: E402
+from app.api.redirect import router as redirect_router  # noqa: E402
+from app.api.v1.router import router as api_v1_router  # noqa: E402
+
+logger = get_logger(__name__)
 
 app = FastAPI(title="URL shortener")
 
@@ -13,8 +20,6 @@ app.add_middleware(
     allow_origins=[
         "http://localhost",
         "http://localhost:5173",
-        "http://localhost:80",
-        "http://linkshortener.ru",
         "https://linkshortener.ru",
     ],
     allow_credentials=True,
@@ -22,6 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_v1_router, prefix="/api")
+register_exception_handlers(app)
 
+app.include_router(api_v1_router, prefix="/api")
 app.include_router(redirect_router)
+
+logger.info("URL shortener app initialized")

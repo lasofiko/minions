@@ -4,16 +4,21 @@ def filter_links_by_search(links: list[dict], filter_text: str) -> list[dict]:
     for link in links:
         ou = link.get("original_url")
         sc = link.get("short_code")
-        if (ou and search_lower in ou.lower()) or (sc and search_lower in sc.lower()):
+        desc = link.get("description")
+        if (
+            (ou and search_lower in ou.lower())
+            or (sc and search_lower in sc.lower())
+            or (desc and search_lower in desc.lower())
+        ):
             out.append(link)
     return out
 
 
 class TestFilterLinksBySearch:
     SAMPLE = [
-        {"id": 1, "original_url": "https://Example.com/foo", "short_code": "aaa"},
-        {"id": 2, "original_url": "https://other.org", "short_code": "XYZ12"},
-        {"id": 3, "original_url": None, "short_code": "orphan"},
+        {"id": 1, "original_url": "https://Example.com/foo", "short_code": "aaa", "description": "promo"},
+        {"id": 2, "original_url": "https://other.org", "short_code": "XYZ12", "description": None},
+        {"id": 3, "original_url": None, "short_code": "orphan", "description": "orphan note"},
     ]
 
     def test_empty_search_returns_all(self):
@@ -40,3 +45,11 @@ class TestFilterLinksBySearch:
 
     def test_empty_input_list(self):
         assert filter_links_by_search([], "x") == []
+
+    def test_by_description(self):
+        r = filter_links_by_search(self.SAMPLE, "promo")
+        assert [x["id"] for x in r] == [1]
+
+    def test_by_description_orphan_note(self):
+        r = filter_links_by_search(self.SAMPLE, "orphan note")
+        assert [x["id"] for x in r] == [3]

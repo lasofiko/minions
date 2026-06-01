@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
 import apiClient from '../../api/client';
-import '../../css/LinkStatsTable.css';
 
 const SORT_OPTIONS = [
     {value: 'created_at-desc', label: 'По дате создания (сначала новые)'},
@@ -137,22 +136,22 @@ export const LinkStatsTable = () => {
     };
 
     if (loading) {
-        return <div className="loading">Загрузка ссылок...</div>;
+        return <div className="flex justify-center items-center p-8 text-text-secondary">Загрузка ссылок...</div>;
     }
 
     if (error) {
         return (
-            <div className="error-container">
-                <div className="error-message">{error}</div>
-                <button onClick={fetchLinks} className="retry-btn">Повторить</button>
+            <div className="flex flex-col items-center justify-center p-8 bg-bg-card rounded-xl shadow-[var(--shadow)] mt-6 text-center border border-border">
+                <div className="text-error mb-4 font-medium">{error}</div>
+                <button onClick={fetchLinks} className="px-4 py-2 bg-primary text-text-light rounded-lg hover:bg-primary-dark transition-colors">Повторить</button>
             </div>
         );
     }
 
     if (links.length === 0) {
         return (
-            <div className="empty-state">
-                <p>У вас пока нет ссылок</p>
+            <div className="flex flex-col items-center justify-center p-12 bg-bg-card rounded-xl shadow-[var(--shadow)] mt-6 text-center text-text-secondary border border-border">
+                <p className="mb-2 text-lg font-medium text-text-primary">У вас пока нет ссылок</p>
                 <p>Создайте первую ссылку на странице "Создать"</p>
             </div>
         );
@@ -163,11 +162,11 @@ export const LinkStatsTable = () => {
         const searchLower = filterText.toLowerCase();
         return (
             (link.original_url && link.original_url.toLowerCase().includes(searchLower)) ||
-            (link.short_code && link.short_code.toLowerCase().includes(searchLower))
+            (link.short_code && link.short_code.toLowerCase().includes(searchLower)) ||
+            (link.description && link.description.toLowerCase().includes(searchLower))
         );
     });
 
-    // Сортировка
     processedLinks.sort((a, b) => {
         let valA, valB;
 
@@ -201,46 +200,46 @@ export const LinkStatsTable = () => {
     };
 
     return (
-        <div className="stats-container">
-            <h2>Статистика ссылок</h2>
+        <div className="w-full bg-bg-card p-4 md:p-6 rounded-xl shadow-[var(--shadow)] mt-6 border border-border">
+            <h2 className="text-2xl font-bold text-text-primary mb-6">Статистика ссылок</h2>
 
-            <div className="stats-controls" role="search" aria-label="Поиск и сортировка ссылок">
+            <div className="flex flex-col md:flex-row gap-4 mb-6" role="search" aria-label="Поиск и сортировка ссылок">
                 <input
                     type="search"
-                    placeholder="Поиск по длинной ссылке..."
+                    placeholder="Поиск по ссылке или описанию..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
-                    className="filter-input"
+                    className="flex-grow p-3 rounded-lg border border-input-border bg-input-bg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors placeholder:text-text-secondary"
                     autoComplete="off"
                 />
-                <div className="sort-dropdown" ref={sortDropdownRef}>
+                <div className="relative" ref={sortDropdownRef}>
                     <button
                         type="button"
                         id="sort-dropdown-trigger"
-                        className="sort-dropdown-trigger"
+                        className="w-full md:w-auto p-3 flex items-center justify-between gap-2 rounded-lg border border-input-border bg-input-bg text-text-primary hover:bg-bg-secondary transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary"
                         aria-haspopup="listbox"
                         aria-expanded={sortMenuOpen}
                         aria-controls="sort-dropdown-listbox"
                         aria-label="Сортировка списка"
                         onClick={() => setSortMenuOpen((open) => !open)}
                     >
-                        <span className="sort-dropdown-value">{activeSortLabel}</span>
-                        <span className="sort-dropdown-chevron" aria-hidden />
+                        <span className="truncate">{activeSortLabel}</span>
+                        <svg className={`w-4 h-4 transition-transform ${sortMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     {sortMenuOpen && (
                         <ul
                             id="sort-dropdown-listbox"
-                            className="sort-dropdown-menu"
+                            className="absolute z-10 w-full md:w-80 mt-2 py-1 rounded-lg border border-border bg-bg-card shadow-lg right-0"
                             role="listbox"
                             aria-labelledby="sort-dropdown-trigger"
                         >
                             {SORT_OPTIONS.map((opt) => (
-                                <li key={opt.value} className="sort-dropdown-item" role="presentation">
+                                <li key={opt.value} role="presentation">
                                     <button
                                         type="button"
                                         role="option"
                                         aria-selected={opt.value === sortKey}
-                                        className={`sort-dropdown-option${opt.value === sortKey ? ' is-active' : ''}`}
+                                        className={`w-full text-left px-4 py-2 transition-colors hover:bg-bg-secondary ${opt.value === sortKey ? 'bg-bg-secondary text-primary font-medium' : 'text-text-primary'}`}
                                         onClick={() => applySortValue(opt.value)}
                                     >
                                         {opt.label}
@@ -252,91 +251,112 @@ export const LinkStatsTable = () => {
                 </div>
             </div>
 
-            <div className="table-wrapper">
-                <table className="stats-table">
-                    <thead>
+            <div className="overflow-x-auto border border-border rounded-lg bg-bg-card scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead className="bg-bg-secondary text-text-secondary text-sm border-b border-border">
                     <tr>
-                        <th>Длинная ссылка</th>
-                        <th>Короткая ссылка</th>
-                        <th>Описание</th>
-                        <th>Переходы</th>
-                        <th>Последний переход</th>
-                        <th>Действия</th>
+                        <th className="p-4 font-semibold whitespace-nowrap">Длинная ссылка</th>
+                        <th className="p-4 font-semibold whitespace-nowrap">Короткая ссылка</th>
+                        <th className="p-4 font-semibold whitespace-nowrap">Описание</th>
+                        <th className="p-4 font-semibold whitespace-nowrap">Переходы</th>
+                        <th className="p-4 font-semibold whitespace-nowrap">Последний переход</th>
+                        <th className="p-4 font-semibold whitespace-nowrap">Действия</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-border text-sm text-text-primary">
                     {processedLinks.map((link) => {
                         const shortUrl = getShortUrl(link.short_code);
                         return (
-                            <tr key={link.id} className="stats-card-row">
-                                <td className="original-url" data-label="Исходная ссылка">
-                                    <div className="original-url-wrapper">
+                            <tr key={link.id} className="hover:bg-bg-secondary/50 transition-colors group">
+                                <td className="p-4 min-w-[300px]">
+                                    <div className="flex items-center gap-2.5 flex-wrap">
                                         <a
                                             href={link.original_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             title={link.original_url}
-                                            className="original-url-link"
+                                            className="flex-1 min-w-0 text-primary text-[13px] break-all hover:underline"
                                         >
                                             {truncateUrl(link.original_url)}
                                         </a>
                                         <button
                                             onClick={() => copyToClipboard(link.original_url)}
-                                            className="text-btn copy-original-btn"
+                                            className="shrink-0 cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-[#28a745] bg-[#28a745]/10 hover:bg-[#28a745]/20"
                                         >
                                             Копировать
                                         </button>
                                     </div>
                                 </td>
-                                <td className="short-url" data-label="Короткая ссылка">
-                                    <div className="short-url-wrapper">
-                                      <span className="short-url-text" title={shortUrl}>
-                                        {shortUrl}
-                                      </span>
+                                <td className="p-4 min-w-[220px]">
+                                    <div className="flex items-center gap-2.5 flex-wrap">
+                                        <span className="font-mono text-[13px] text-text-primary break-all px-2 py-1 rounded-md" title={shortUrl}>
+                                            {shortUrl}
+                                        </span>
                                         <button
                                             onClick={() => copyToClipboard(shortUrl)}
-                                            className="text-btn copy-short-btn"
+                                            className="shrink-0 cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-primary bg-primary/10 hover:bg-primary/20"
                                         >
                                             Копировать
                                         </button>
                                     </div>
                                 </td>
-                                <td className="description" data-label="Описание">
+                                <td className="p-4">
                                     {editingLink === link.short_code ? (
-                                        <div className="description-edit">
+                                        <div className="flex flex-col gap-2">
                                             <input
                                                 type="text"
                                                 value={editDescription}
                                                 onChange={(e) => setEditDescription(e.target.value)}
-                                                className="description-input"
+                                                className="w-full p-2 rounded border border-input-border bg-input-bg text-text-primary focus:outline-none focus:border-primary text-sm"
+                                                placeholder="Заметка к ссылке"
+                                                maxLength={120}
+                                                autoFocus
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') saveDescription(link.short_code);
+                                                    if (e.key === 'Escape') setEditingLink(null);
+                                                }}
                                             />
-                                            <button onClick={() => saveDescription(link.short_code)} className="text-btn">Сохранить</button>
-                                            <button onClick={() => setEditingLink(null)} className="text-btn">Отмена</button>
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={() => saveDescription(link.short_code)} className="text-xs text-success hover:text-success/80 transition-colors">Сохранить</button>
+                                                <button type="button" onClick={() => setEditingLink(null)} className="text-xs text-text-secondary hover:text-text-primary transition-colors">Отмена</button>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="description-view" onDoubleClick={() => handleEditDescription(link)}>
-                                            <span>{link.description || '—'}</span>
-                                            <button onClick={() => handleEditDescription(link)} className="text-btn edit-desc-btn">✎</button>
+                                        <div className="flex items-center gap-2 group/edit cursor-pointer" onDoubleClick={() => handleEditDescription(link)} title="Двойной клик — редактировать">
+                                            <span className="text-text-secondary">{link.description || '—'}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditDescription(link)}
+                                                className="text-text-secondary hover:text-primary transition-colors opacity-0 group-hover/edit:opacity-100 md:group-hover:opacity-100"
+                                                aria-label="Редактировать описание"
+                                                title="Редактировать описание"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                            </button>
                                         </div>
                                     )}
                                 </td>
-                                <td className="clicks" data-label="Переходы">
-                                    <span className="clicks-count">{link.clicks_count || 0}</span>
+                                <td className="p-4">
+                                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                                        {link.clicks_count || 0}
+                                    </span>
                                 </td>
-                                <td className="last-click" data-label="Последний переход">
+                                <td className="p-4 text-text-secondary whitespace-nowrap">
                                     {formatDate(link.last_clicked_at)}
                                 </td>
-                                <td className="actions" data-label="Действия">
-                                    <div className="actions-wrapper">
+                                <td className="p-4 min-w-[160px]">
+                                    <div className="flex flex-wrap justify-center gap-2">
                                         <button
                                             onClick={() => downloadQR(shortUrl, link.short_code)}
-                                            className="text-btn download-btn"
+                                            className="cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-[#6c757d] bg-[#6c757d]/10 hover:bg-[#6c757d]/20"
+                                            title="Скачать QR код"
                                         >
                                             Скачать QR
                                         </button>
                                         <button
                                             onClick={() => deleteLink(link.short_code)}
-                                            className="text-btn delete-btn"
+                                            className="cursor-pointer px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-200 hover:-translate-y-px active:translate-y-0 text-[#dc3545] bg-[#dc3545]/10 hover:bg-[#dc3545]/20"
+                                            title="Удалить"
                                         >
                                             Удалить
                                         </button>
@@ -346,8 +366,8 @@ export const LinkStatsTable = () => {
                         );
                     })}
                     {processedLinks.length === 0 && (
-                        <tr className="stats-empty-row">
-                            <td colSpan="6" className="stats-no-results">
+                        <tr>
+                            <td colSpan="6" className="p-8 text-center text-text-secondary">
                                 По вашему запросу ничего не найдено
                             </td>
                         </tr>
