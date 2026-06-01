@@ -265,6 +265,10 @@ git pull
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
+**Автодеплой:** push в `main` запускает job `deploy` в [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) — после прохождения тестов CI по SSH выполняет на сервере те же команды (`git pull` + `docker compose -f docker-compose.prod.yml up -d --build`). Миграции применяются автоматически при старте backend-контейнера.
+
+Что нужно на сервере: репозиторий склонирован в `/opt/minions` (с доступом к git) и заполнен `.env`. Секреты в GitHub: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PORT` (опц., по умолчанию `22`).
+
 ---
 
 ## Ограничения и планы
@@ -275,7 +279,6 @@ docker compose -f docker-compose.prod.yml up -d --build
 - Rate limiting и отдельный health-check endpoint
 - Детальную аналитику кликов (IP, User-Agent, гео)
 - Собственный сервис генерации QR на backend
-- Автодеплой из CI (job отключён)
 
 Возможные улучшения: PostgreSQL в prod, кастомные алиасы ссылок, срок жизни ссылки, админ-панель, единый язык сообщений об ошибках на русском.
 
