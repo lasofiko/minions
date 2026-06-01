@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- контекст и хук намеренно лежат рядом с провайдером */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiClient, {
     ACCESS_TOKEN_EXPIRE_DAYS,
