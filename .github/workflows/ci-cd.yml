@@ -212,7 +212,7 @@ jobs:
             set -e
             echo "Starting deployment..."
 
-            /home/topit-vm/minions || exit 1
+            cd /home/topit-vm/minions || exit 1
 
             echo "Pulling latest code..."
             git pull --ff-only
