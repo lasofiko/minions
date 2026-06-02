@@ -70,17 +70,17 @@
 
 ## Архитектура
 
-```mermaid
-flowchart TB
-    subgraph client [Браузер]
-        React[React SPA]
-    end
+    '''
+    flowchart TB
+        subgraph Client [Клиентская часть]
+            React[React SPA]
+        end
 
-    subgraph router [nginx router]
+    subgraph Router [nginx router]
         R[Маршрутизация]
     end
 
-    subgraph services [Сервисы]
+    subgraph Services [Сервисы]
         FE[Frontend nginx :80]
         BE[FastAPI backend :8000]
     end
@@ -89,13 +89,13 @@ flowchart TB
 
     React -->|/api/*| R
     React -->|/auth, /dashboard| R
-    User -->|/{code}| R
-
+    
     R -->|/api/*| BE
     R -->|статика, SPA| FE
     R -->|/{code}| BE
+    
     BE --> DB
-```
+    '''
 
 **Логика маршрутизации (dev и prod):**
 
