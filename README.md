@@ -283,3 +283,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 Возможные улучшения: PostgreSQL в prod, кастомные алиасы ссылок, срок жизни ссылки, админ-панель, единый язык сообщений об ошибках на русском.
 
 ---
+
+## Ссылка на сайт 
+
+https://linkshortener.ru
